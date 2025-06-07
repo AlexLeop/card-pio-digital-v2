@@ -42,10 +42,34 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
   const { productAddons, loading } = useProductAddonsQuery(product?.id || '');
 
-  // Adicionar lógica para slots disponíveis
-  const availableSlots = product?.allow_same_day_scheduling 
-    ? SchedulingManager.getAvailableSlots(store, 'delivery', 7)
-    : [];
+  // Mover este código para aqui (dentro do componente)
+  const isSchedulingAllowed = store?.allow_scheduling && product?.allow_same_day_scheduling;
+  const cutoffTime = store?.same_day_cutoff_time || '14:00';
+
+  const availableSlots = useMemo(() => {
+    if (!isSchedulingAllowed) return [];
+    
+    const now = new Date();
+    const today = format(now, 'yyyy-MM-dd');
+    const currentTime = format(now, 'HH:mm');
+    
+    const canScheduleToday = currentTime < cutoffTime;
+    
+    const slots = [];
+    const startDate = canScheduleToday ? now : addDays(now, 1);
+    
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(startDate, i);
+      const dayName = format(date, 'EEEE').toLowerCase();
+      const schedule = store?.weekly_schedule?.[dayName];
+      
+      if (schedule && !schedule.closed) {
+        // Lógica para gerar slots
+      }
+    }
+    
+    return slots;
+  }, [store, product, isSchedulingAllowed, cutoffTime]);
 
   const formatDateTime = (dateStr: string, timeStr: string) => {
     const date = new Date(`${dateStr}T${timeStr}`);
@@ -540,38 +564,3 @@ const ProductModal: React.FC<ProductModalProps> = ({
 };
 
 export default ProductModal;
-
-// Adicione verificação das regras de negócio:
-const isSchedulingAllowed = store?.allow_scheduling && product.allow_same_day_scheduling;
-const cutoffTime = store?.same_day_cutoff_time || '14:00';
-
-// Modifique a lógica de slots disponíveis:
-const availableSlots = useMemo(() => {
-  if (!isSchedulingAllowed) return [];
-  
-  const now = new Date();
-  const today = format(now, 'yyyy-MM-dd');
-  const currentTime = format(now, 'HH:mm');
-  
-  // Verifica se ainda pode agendar para hoje
-  const canScheduleToday = currentTime < cutoffTime;
-  
-  // Gera slots baseado nos horários de funcionamento da loja
-  const slots = [];
-  const startDate = canScheduleToday ? now : addDays(now, 1);
-  
-  for (let i = 0; i < 7; i++) {
-    const date = addDays(startDate, i);
-    const dayName = format(date, 'EEEE').toLowerCase();
-    const schedule = store?.weekly_schedule?.[dayName];
-    
-    if (schedule && !schedule.closed) {
-      // Gera slots de 30 em 30 minutos
-      const openTime = schedule.open;
-      const closeTime = schedule.close;
-      // ... lógica para gerar slots ...
-    }
-  }
-  
-  return slots;
-}, [store, product, isSchedulingAllowed, cutoffTime]);
