@@ -149,7 +149,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
                   <span className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span>Aberto</span>
-                  </div>
+                  </span>
                   <span>• Pedido mín. R$15,00</span>
                 </div>
               </div>
