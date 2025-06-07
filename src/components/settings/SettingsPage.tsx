@@ -478,13 +478,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
 
 export default SettingsPage;
 
+// REMOVER TODO ESTE CÓDIGO:
 // Adicione após as configurações básicas:
-<SchedulingSettings 
-  storeId={storeId}
-  onSave={() => {
-    toast({
-      title: "Sucesso!",
-      description: "Configurações de horário salvas com sucesso."
-    });
-  }}
-/>
+// <SchedulingSettings 
+//   storeId={storeId}
+//   onSave={() => {
+//     toast({
+//       title: "Sucesso!",
+//       description: "Configurações de horário salvas com sucesso."
+//     });
+//   }}
+// />
