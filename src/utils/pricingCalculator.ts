@@ -13,8 +13,8 @@ export const calculatePricing = (
   addons: ProductAddon[]
 ): PricingCalculation => {
   const productPrice = product.sale_price || product.price;
-  const productTotal = productPrice * quantity;
   
+  let productTotal = 0;
   let addonsTotal = 0;
   
   // Verifica se o produto tem configuração de quantidade máxima incluída
@@ -23,25 +23,29 @@ export const calculatePricing = (
     
     // Regra 1: Menos adicionais que o limite definido
     if (totalAddonsSelected < product.max_included_quantity) {
-      // Cobra a soma dos valores individuais de cada adicional
-      addonsTotal = addons.reduce((sum, addon) => {
-        return sum + (addon.price * (addon.quantity || 1));
-      }, 0) * quantity;
+      // CORREÇÃO: Ignora o preço do produto e cobra apenas pelos adicionais
+      productTotal = 0;
+      // Cobra o valor do adicional × total de adicionais escolhidos × quantidade do produto
+      const addonUnitPrice = addons.length > 0 ? addons[0].price : 0; // Assume que todos os adicionais têm o mesmo preço
+      addonsTotal = addonUnitPrice * totalAddonsSelected * quantity;
     }
     // Regra 2: Quantidade exata de adicionais permitida
     else if (totalAddonsSelected === product.max_included_quantity) {
-      // Não cobra pelos adicionais (já inclusos no preço base)
+      // Cobra o preço fixo do produto (adicionais inclusos)
+      productTotal = productPrice * quantity;
       addonsTotal = 0;
     }
     // Regra 3: Mais adicionais do que o permitido
     else {
-      // Cobra a soma dos valores de todos os adicionais escolhidos
+      // Cobra o preço fixo + todos os adicionais
+      productTotal = productPrice * quantity;
       addonsTotal = addons.reduce((sum, addon) => {
         return sum + (addon.price * (addon.quantity || 1));
       }, 0) * quantity;
     }
   } else {
     // Comportamento padrão (sem regras especiais)
+    productTotal = productPrice * quantity;
     addonsTotal = addons.reduce((sum, addon) => {
       return sum + (addon.price * (addon.quantity || 1));
     }, 0) * quantity;
