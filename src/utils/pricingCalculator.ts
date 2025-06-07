@@ -25,9 +25,10 @@ export const calculatePricing = (
     if (totalAddonsSelected < product.max_included_quantity) {
       // CORREÇÃO: Ignora o preço do produto e cobra apenas pelos adicionais
       productTotal = 0;
-      // Cobra o valor do adicional × total de adicionais escolhidos × quantidade do produto
-      const addonUnitPrice = addons.length > 0 ? addons[0].price : 0; // Assume que todos os adicionais têm o mesmo preço
-      addonsTotal = addonUnitPrice * totalAddonsSelected * quantity;
+      // Cobra a soma dos valores individuais de cada adicional × quantidade do produto
+      addonsTotal = addons.reduce((sum, addon) => {
+        return sum + (addon.price * (addon.quantity || 1));
+      }, 0) * quantity;
     }
     // Regra 2: Quantidade exata de adicionais permitida
     else if (totalAddonsSelected === product.max_included_quantity) {
