@@ -13,9 +13,10 @@ import { Store } from '@/types';
 
 interface SettingsPageProps {
   onSave: () => void;
+  storeId: string; // Adicionar esta prop
 }
 
-const SettingsPage: React.FC<SettingsPageProps> = ({ onSave }) => {
+const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
   const [loading, setLoading] = useState(false);
   const [store, setStore] = useState<Store | null>(null);
   
@@ -104,7 +105,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave }) => {
       const { data, error } = await supabase
         .from('stores')
         .select('*')
-        .eq('id', currentStoreId)
+        .eq('id', storeId) // Usar storeId em vez de currentStoreId
         .single();
 
       if (error) throw error;
@@ -150,7 +151,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave }) => {
           pickup_address: store.pickup_address,
           pickup_instructions: store.pickup_instructions
         })
-        .eq('id', currentStoreId);
+        .eq('id', storeId);
 
       if (error) throw error;
 

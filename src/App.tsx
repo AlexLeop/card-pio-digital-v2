@@ -404,7 +404,7 @@ const App = () => {
       case 'reports':
         return <SalesReport storeId={currentStoreId} storeName={currentStoreName} />;
       case 'settings':
-        return <SettingsPage onSave={() => console.log('Settings saved')} />;
+        return <SettingsPage onSave={() => console.log('Settings saved')} storeId={currentStoreId} />;
       default:
         return <Index />;
     }
