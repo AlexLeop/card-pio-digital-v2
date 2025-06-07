@@ -38,6 +38,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   const [notes, setNotes] = useState('');
   const [scheduledFor, setScheduledFor] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
 
   const { productAddons, loading } = useProductAddonsQuery(product?.id || '');
 
@@ -380,9 +381,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           </div>
                         </div>
 
-                        // Adicione este estado no início do componente ProductModal
-                        const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
-                        
                         <div className="flex items-center space-x-3">
                           {isAddonSelected(category.id, addon.id) && category.is_multiple && (
                             <div className="flex items-center gap-2">
