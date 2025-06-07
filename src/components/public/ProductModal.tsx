@@ -9,14 +9,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Minus, Plus, Clock, Star } from 'lucide-react';
-import { Product, ProductAddon, PricingCalculation } from '@/types';
+import { Product, ProductAddon, PricingCalculation, Store } from '@/types';
 import { useProductAddonsQuery } from '@/hooks/useProductAddonsQuery';
 import { calculatePricing } from '@/utils/pricingCalculator';
 import { SchedulingManager } from '@/utils/stockManager';
 
 interface ProductModalProps {
   product: Product | null;
-  store: Store; // Adicionar store como prop
+  store: Store;
   onClose: () => void;
   onAddToCart: (
     product: Product, 
@@ -27,10 +27,9 @@ interface ProductModalProps {
   ) => void;
 }
 
-// No início da função do componente, antes do return
 const ProductModal: React.FC<ProductModalProps> = ({
   product,
-  store, // Receber store
+  store,
   onClose,
   onAddToCart
 }) => {
@@ -41,6 +40,22 @@ const ProductModal: React.FC<ProductModalProps> = ({
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const { productAddons, loading } = useProductAddonsQuery(product?.id || '');
+
+  // Adicionar lógica para slots disponíveis
+  const availableSlots = product?.allow_same_day_scheduling 
+    ? SchedulingManager.getAvailableSlots(store, 'delivery', 7)
+    : [];
+
+  const formatDateTime = (dateStr: string, timeStr: string) => {
+    const date = new Date(`${dateStr}T${timeStr}`);
+    return date.toLocaleString('pt-BR', {
+      weekday: 'short',
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   useEffect(() => {
     if (product && productAddons) {
@@ -429,22 +444,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
               className="min-h-[80px]"
             />
           </div>
-
-          // Adicionar lógica para slots disponíveis
-          const availableSlots = product?.allow_same_day_scheduling 
-            ? SchedulingManager.getAvailableSlots(store, 'delivery', 7)
-            : [];
-
-          const formatDateTime = (dateStr: string, timeStr: string) => {
-            const date = new Date(`${dateStr}T${timeStr}`);
-            return date.toLocaleString('pt-BR', {
-              weekday: 'short',
-              day: '2-digit',
-              month: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit'
-            });
-          };
 
           {product?.allow_same_day_scheduling && (
             <div className="space-y-2">
