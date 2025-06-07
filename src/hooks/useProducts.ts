@@ -69,7 +69,7 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
     try {
       const dataForDB = {
         ...productData,
-        image_url: productData.images && productData.images.length > 0 ? productData.images[0].url : null,
+        image_url: productData?.images && productData.images.length > 0 ? productData.images[0].url : null,
         images: undefined // Remove images property for DB insertion
       };
 
@@ -112,7 +112,7 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
     try {
       const dataForDB = {
         ...productData,
-        image_url: productData.images && productData.images.length > 0 ? productData.images[0].url : null,
+        image_url: productData?.images && productData.images.length > 0 ? productData.images[0].url : null,
         images: undefined // Remove images property for DB update
       };
 
