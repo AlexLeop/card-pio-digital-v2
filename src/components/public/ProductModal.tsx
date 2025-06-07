@@ -412,13 +412,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
                               <Button
                                 variant="outline"
                                 size="sm"
-                                // Nas linhas onde está sendo usado selectedAddons.find(), substituir por:
-                                // Assumindo que você tem acesso ao categoryId no contexto
+                                // Substituir as ocorrências por:
+                                getAddonQuantity(category.id, addon.id)
                                 
-                                // Linha 415 (aproximadamente):
-                                onClick={() => updateAddonQuantity(category.id, addon.id, Math.max(0, (selectedAddons[category.id]?.find(a => a.id === addon.id)?.quantity || 0) - 1))}
-                                
-                                // Linha 425 (aproximadamente):
                                 value={selectedAddons[category.id]?.find(a => a.id === addon.id)?.quantity || 0}
                                 
                                 // Linha 445 (aproximadamente):
