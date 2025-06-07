@@ -13,11 +13,10 @@ import ProductAdvancedForm from './ProductAdvancedForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const ProductsPage: React.FC = () => {
-  const { stores } = useStores();
-  const selectedStore = stores.find(store => store.is_active) || stores[0];
-  
-  const { products, loading, error, refetch } = useProducts(selectedStore?.id);
-  const { categories } = useCategories(selectedStore?.id);
+  const { selectedStore } = useStores();
+  const { data: categories = [] } = useCategories(selectedStore?.id || '');
+  const { data: products = [], isLoading, error, refetch } = useProducts(selectedStore?.id || '');
+  const { addProduct, updateProduct } = useProducts(selectedStore?.id || '');
   
   const [showForm, setShowForm] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | Partial<Product>>({});
@@ -28,10 +27,6 @@ const ProductsPage: React.FC = () => {
     console.log('[ProductsPage] handleAddProduct triggered');
     setSelectedProduct({});
     setShowAdvancedForm(true);
-    // Força o re-render
-    setTimeout(() => {
-      console.log('[ProductsPage] showAdvancedForm state:', showAdvancedForm);
-    }, 100);
   };
 
   const handleEditProduct = (product: Product) => {
@@ -63,10 +58,31 @@ const ProductsPage: React.FC = () => {
     handleCloseAdvancedForm();
   };
 
-  const handleSaveAdvanced = (productData: Partial<Product>) => {
-    console.log('[ProductsPage] Salvando produto avançado:', productData);
-    refetch();
-    setShowAdvancedForm(false);
+  const handleSaveAdvanced = async (productData: Partial<Product>) => {
+    try {
+      console.log('[ProductsPage] Salvando produto avançado:', productData);
+      
+      if (selectedProduct && 'id' in selectedProduct && selectedProduct.id) {
+        // Editando produto existente
+        await updateProduct({
+          ...productData,
+          id: selectedProduct.id,
+          store_id: selectedStore?.id || ''
+        } as Product);
+      } else {
+        // Criando novo produto
+        await addProduct({
+          ...productData,
+          store_id: selectedStore?.id || ''
+        } as Omit<Product, 'id'>);
+      }
+      
+      refetch();
+      setShowAdvancedForm(false);
+      setSelectedProduct({});
+    } catch (error) {
+      console.error('Erro ao salvar produto:', error);
+    }
   };
 
   if (!selectedStore) {
@@ -154,7 +170,9 @@ const ProductsPage: React.FC = () => {
       {viewProduct && (
         <ProductViewModal
           product={viewProduct}
+          categories={categories}
           onClose={handleCloseView}
+          onEdit={handleEditProduct}
         />
       )}
     </div>
