@@ -91,6 +91,7 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         is_available: data.is_available || true,
         is_active: data.is_active || true,
         has_addons: data.has_addons || false,
+        max_included_quantity: data.max_included_quantity || undefined,
         created_at: data.created_at || new Date().toISOString(),
         images: data.image_url ? [{
           url: data.image_url,
@@ -134,6 +135,7 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         is_available: data.is_available || true,
         is_active: data.is_active || true,
         has_addons: data.has_addons || false,
+        max_included_quantity: data.max_included_quantity || undefined,
         created_at: data.created_at || new Date().toISOString(),
         images: data.image_url ? [{
           url: data.image_url,
