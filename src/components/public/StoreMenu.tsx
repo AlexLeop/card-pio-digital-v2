@@ -350,6 +350,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
       {selectedProduct && (
         <ProductModal
           product={selectedProduct}
+          store={store} // Passar store como prop
           onClose={() => setSelectedProduct(null)}
           onAddToCart={handleAddToCart}
         />

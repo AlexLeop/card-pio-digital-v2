@@ -12,9 +12,11 @@ import { Minus, Plus, Clock, Star } from 'lucide-react';
 import { Product, ProductAddon, PricingCalculation } from '@/types';
 import { useProductAddonsQuery } from '@/hooks/useProductAddonsQuery';
 import { calculatePricing } from '@/utils/pricingCalculator';
+import { SchedulingManager } from '@/utils/stockManager';
 
 interface ProductModalProps {
   product: Product | null;
+  store: Store; // Adicionar store como prop
   onClose: () => void;
   onAddToCart: (
     product: Product, 
@@ -27,6 +29,7 @@ interface ProductModalProps {
 
 const ProductModal: React.FC<ProductModalProps> = ({
   product,
+  store, // Receber store
   onClose,
   onAddToCart
 }) => {
@@ -426,17 +429,51 @@ const ProductModal: React.FC<ProductModalProps> = ({
             />
           </div>
 
-          {/* Scheduling (if enabled) */}
+          // Adicionar lógica para slots disponíveis
+          const availableSlots = product?.allow_same_day_scheduling 
+            ? SchedulingManager.getAvailableSlots(store, 'delivery', 7)
+            : [];
+
+          const formatDateTime = (dateStr: string, timeStr: string) => {
+            const date = new Date(`${dateStr}T${timeStr}`);
+            return date.toLocaleString('pt-BR', {
+              weekday: 'short',
+              day: '2-digit',
+              month: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          };
+
           {product?.allow_same_day_scheduling && (
             <div className="space-y-2">
-              <Label htmlFor="scheduled">Agendar para (opcional)</Label>
-              <Input
-                id="scheduled"
-                type="datetime-local"
-                value={scheduledFor}
-                onChange={(e) => setScheduledFor(e.target.value)}
-                min={new Date().toISOString().slice(0, 16)}
-              />
+              <Label>Agendar para (opcional)</Label>
+              <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                <Button
+                  type="button"
+                  variant={!scheduledFor ? 'default' : 'outline'}
+                  onClick={() => setScheduledFor('')}
+                  className="text-sm"
+                >
+                  Agora
+                </Button>
+                {availableSlots.map((slot, index) => (
+                  <Button
+                    key={index}
+                    type="button"
+                    variant={scheduledFor === `${slot.date}T${slot.time}` ? 'default' : 'outline'}
+                    onClick={() => setScheduledFor(`${slot.date}T${slot.time}`)}
+                    className="text-sm"
+                  >
+                    {formatDateTime(slot.date, slot.time)}
+                  </Button>
+                ))}
+              </div>
+              {availableSlots.length === 0 && (
+                <p className="text-sm text-gray-500">
+                  Nenhum horário disponível para agendamento
+                </p>
+              )}
             </div>
           )}
 

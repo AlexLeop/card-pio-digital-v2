@@ -19,12 +19,85 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave }) => {
   const [loading, setLoading] = useState(false);
   const [store, setStore] = useState<Store | null>(null);
   
-  // Use the real store ID from the database
-  const currentStoreId = "7688fcbf-a2a7-483a-aefd-62edadf6db82";
+  // Inicializar horários semanais se não existirem
+  const initializeWeeklySchedule = () => {
+    if (!store?.weekly_schedule) {
+      const defaultSchedule = {
+        monday: { open: '08:00', close: '22:00', closed: false },
+        tuesday: { open: '08:00', close: '22:00', closed: false },
+        wednesday: { open: '08:00', close: '22:00', closed: false },
+        thursday: { open: '08:00', close: '22:00', closed: false },
+        friday: { open: '08:00', close: '22:00', closed: false },
+        saturday: { open: '08:00', close: '22:00', closed: false },
+        sunday: { open: '08:00', close: '22:00', closed: false }
+      };
+      setStore(prev => prev ? { ...prev, weekly_schedule: defaultSchedule } : null);
+    }
+  };
+
+  const initializeDeliverySchedule = () => {
+    if (!store?.delivery_schedule) {
+      const defaultSchedule = {
+        monday: { start: '08:00', end: '22:00', enabled: true },
+        tuesday: { start: '08:00', end: '22:00', enabled: true },
+        wednesday: { start: '08:00', end: '22:00', enabled: true },
+        thursday: { start: '08:00', end: '22:00', enabled: true },
+        friday: { start: '08:00', end: '22:00', enabled: true },
+        saturday: { start: '08:00', end: '22:00', enabled: true },
+        sunday: { start: '08:00', end: '22:00', enabled: true }
+      };
+      setStore(prev => prev ? { ...prev, delivery_schedule: defaultSchedule } : null);
+    }
+  };
+
+  const updateWeeklySchedule = (day: string, field: string, value: any) => {
+    setStore(prev => {
+      if (!prev) return null;
+      const updatedSchedule = {
+        ...prev.weekly_schedule,
+        [day]: {
+          ...prev.weekly_schedule?.[day],
+          [field]: value
+        }
+      };
+      return { ...prev, weekly_schedule: updatedSchedule };
+    });
+  };
+
+  const updateDeliverySchedule = (day: string, field: string, value: any) => {
+    setStore(prev => {
+      if (!prev) return null;
+      const updatedSchedule = {
+        ...prev.delivery_schedule,
+        [day]: {
+          ...prev.delivery_schedule?.[day],
+          [field]: value
+        }
+      };
+      return { ...prev, delivery_schedule: updatedSchedule };
+    });
+  };
 
   useEffect(() => {
     fetchStoreData();
   }, []);
+
+  useEffect(() => {
+    if (store) {
+      initializeWeeklySchedule();
+      initializeDeliverySchedule();
+    }
+  }, [store?.id]);
+
+  const days = [
+    { key: 'monday', label: 'Segunda-feira' },
+    { key: 'tuesday', label: 'Terça-feira' },
+    { key: 'wednesday', label: 'Quarta-feira' },
+    { key: 'thursday', label: 'Quinta-feira' },
+    { key: 'friday', label: 'Sexta-feira' },
+    { key: 'saturday', label: 'Sábado' },
+    { key: 'sunday', label: 'Domingo' }
+  ];
 
   const fetchStoreData = async () => {
     try {
@@ -350,6 +423,22 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave }) => {
                 onCheckedChange={(checked) => setStore(prev => prev ? { ...prev, allow_scheduling: checked } : null)}
               />
             </div>
+
+            {/* ADICIONAR ESTA SEÇÃO */}
+            {store.allow_scheduling && (
+              <div className="space-y-2">
+                <Label htmlFor="same_day_cutoff_time">Horário Limite para Pedidos no Mesmo Dia</Label>
+                <Input
+                  id="same_day_cutoff_time"
+                  type="time"
+                  value={store.same_day_cutoff_time || '14:00'}
+                  onChange={(e) => setStore(prev => prev ? { ...prev, same_day_cutoff_time: e.target.value } : null)}
+                />
+                <p className="text-sm text-gray-500">
+                  Após este horário, pedidos só poderão ser agendados para o próximo dia
+                </p>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
