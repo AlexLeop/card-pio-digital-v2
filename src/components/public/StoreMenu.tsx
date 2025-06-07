@@ -13,6 +13,7 @@ import ProductModal from './ProductModal';
 import CartModal from './CartModal';
 import CheckoutModal from './CheckoutModal';
 import { toast } from '@/hooks/use-toast';
+import { StockManager } from '@/utils/stockManager';
 
 interface StoreMenuProps {
   store: Store;
@@ -34,17 +35,30 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
     const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesCategory && matchesSearch && product.is_available && product.is_active;
+    
+    // Aplicar validações de regras de negócio
+    const hasStock = StockManager.checkDailyStock(product);
+    const isBasicAvailable = product.is_available && product.is_active;
+    
+    return matchesCategory && matchesSearch && isBasicAvailable && hasStock;
   });
 
   // Get featured products
   const featuredProducts = products.filter(product => 
-    product.is_featured && product.is_available && product.is_active
+    product.is_featured && 
+    product.is_available && 
+    product.is_active &&
+    StockManager.checkDailyStock(product)
   ).slice(0, 3);
 
   // Get active categories that have products
   const activeCategories = categories.filter(cat => 
-    cat.is_active && products.some(p => p.category_id === cat.id && p.is_available && p.is_active)
+    cat.is_active && products.some(p => 
+      p.category_id === cat.id && 
+      p.is_available && 
+      p.is_active &&
+      StockManager.checkDailyStock(p)
+    )
   );
 
   const handleAddToCart = (product: Product, quantity: number, addons: ProductAddon[], notes?: string, scheduledFor?: string) => {
