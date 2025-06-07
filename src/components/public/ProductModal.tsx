@@ -380,31 +380,56 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           </div>
                         </div>
 
+                        // Adicione este estado no início do componente ProductModal
+                        const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
+                        
                         <div className="flex items-center space-x-3">
                           {isAddonSelected(category.id, addon.id) && category.is_multiple && (
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => 
-                                  updateAddonQuantity(category.id, addon.id, getAddonQuantity(category.id, addon.id) - 1)
-                                }
-                                className="h-6 w-6 p-0"
+                                onClick={() => updateAddonQuantity(addon.id, Math.max(0, (selectedAddons.find(a => a.id === addon.id)?.quantity || 0) - 1))}
                               >
-                                <Minus className="h-3 w-3" />
+                                -
                               </Button>
-                              <span className="text-sm min-w-[1.5rem] text-center">
-                                {getAddonQuantity(category.id, addon.id)}
-                              </span>
+                              
+                              {editingAddonId === addon.id ? (
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="10"
+                                  value={selectedAddons.find(a => a.id === addon.id)?.quantity || 0}
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value) || 0;
+                                    updateAddonQuantity(addon.id, Math.max(0, Math.min(10, value)));
+                                  }}
+                                  onBlur={() => setEditingAddonId(null)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      setEditingAddonId(null);
+                                    }
+                                  }}
+                                  className="w-16 text-center"
+                                  autoFocus
+                                />
+                              ) : (
+                                <div 
+                                  className="w-16 h-9 flex items-center justify-center border border-gray-300 rounded cursor-pointer hover:bg-gray-50 transition-colors"
+                                  onClick={() => setEditingAddonId(addon.id)}
+                                >
+                                  <span className="text-sm font-medium">
+                                    {selectedAddons.find(a => a.id === addon.id)?.quantity || 0}
+                                  </span>
+                                </div>
+                              )}
+                              
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => 
-                                  updateAddonQuantity(category.id, addon.id, getAddonQuantity(category.id, addon.id) + 1)
-                                }
-                                className="h-6 w-6 p-0"
+                                onClick={() => updateAddonQuantity(addon.id, Math.min(10, (selectedAddons.find(a => a.id === addon.id)?.quantity || 0) + 1))}
                               >
-                                <Plus className="h-3 w-3" />
+                                +
                               </Button>
                             </div>
                           )}
@@ -517,3 +542,38 @@ const ProductModal: React.FC<ProductModalProps> = ({
 };
 
 export default ProductModal;
+
+// Adicione verificação das regras de negócio:
+const isSchedulingAllowed = store?.allow_scheduling && product.allow_same_day_scheduling;
+const cutoffTime = store?.same_day_cutoff_time || '14:00';
+
+// Modifique a lógica de slots disponíveis:
+const availableSlots = useMemo(() => {
+  if (!isSchedulingAllowed) return [];
+  
+  const now = new Date();
+  const today = format(now, 'yyyy-MM-dd');
+  const currentTime = format(now, 'HH:mm');
+  
+  // Verifica se ainda pode agendar para hoje
+  const canScheduleToday = currentTime < cutoffTime;
+  
+  // Gera slots baseado nos horários de funcionamento da loja
+  const slots = [];
+  const startDate = canScheduleToday ? now : addDays(now, 1);
+  
+  for (let i = 0; i < 7; i++) {
+    const date = addDays(startDate, i);
+    const dayName = format(date, 'EEEE').toLowerCase();
+    const schedule = store?.weekly_schedule?.[dayName];
+    
+    if (schedule && !schedule.closed) {
+      // Gera slots de 30 em 30 minutos
+      const openTime = schedule.open;
+      const closeTime = schedule.close;
+      // ... lógica para gerar slots ...
+    }
+  }
+  
+  return slots;
+}, [store, product, isSchedulingAllowed, cutoffTime]);

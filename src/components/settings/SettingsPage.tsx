@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Store } from '@/types';
+import SchedulingSettings from './SchedulingSettings';
 
 interface SettingsPageProps {
   onSave: () => void;
@@ -476,3 +477,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
 };
 
 export default SettingsPage;
+
+// Adicione após as configurações básicas:
+<SchedulingSettings 
+  storeId={storeId}
+  onSave={() => {
+    toast({
+      title: "Sucesso!",
+      description: "Configurações de horário salvas com sucesso."
+    });
+  }}
+/>

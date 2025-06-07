@@ -27,9 +27,11 @@ const ProductsPage: React.FC = () => {
   const handleAddProduct = () => {
     console.log('[ProductsPage] handleAddProduct triggered');
     setSelectedProduct({});
-    console.log('[ProductsPage] showAdvancedForm before set:', showAdvancedForm);
     setShowAdvancedForm(true);
-    console.log('[ProductsPage] showAdvancedForm after set should be true');
+    // Força o re-render
+    setTimeout(() => {
+      console.log('[ProductsPage] showAdvancedForm state:', showAdvancedForm);
+    }, 100);
   };
 
   const handleEditProduct = (product: Product) => {

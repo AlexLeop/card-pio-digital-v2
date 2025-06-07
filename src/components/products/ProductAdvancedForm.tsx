@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Package, Clock, Settings } from 'lucide-react';
 import { Product, AddonCategory, ProductImage } from '@/types';
 import ImageUpload from './ImageUpload';
+import SimpleImageUpload from './SimpleImageUpload';
 
 interface ProductAdvancedFormProps {
   product?: Product;
@@ -79,9 +80,7 @@ const ProductAdvancedForm: React.FC<ProductAdvancedFormProps> = ({
   };
 
   // Adicionar estado para imagens
-  const [images, setImages] = useState<ProductImage[]>(
-    product?.images || []
-  );
+  const [images, setImages] = useState<ProductImage[]>(product?.images || []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -450,3 +449,27 @@ const ProductAdvancedForm: React.FC<ProductAdvancedFormProps> = ({
 };
 
 export default ProductAdvancedForm;
+
+// Adicione na seção de imagens:
+<Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      <Package className="h-5 w-5" />
+      Imagens do Produto
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    <SimpleImageUpload
+      images={images}
+      onImagesChange={setImages}
+      maxImages={5}
+    />
+  </CardContent>
+</Card>
+
+// No handleSubmit, inclua as imagens:
+const productData = {
+  ...formData,
+  images: images,
+  image_url: images.find(img => img.is_primary)?.url || images[0]?.url || formData.image_url
+};
