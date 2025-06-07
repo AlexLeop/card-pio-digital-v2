@@ -8,7 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Package, Clock, Settings } from 'lucide-react';
-import { Product, AddonCategory } from '@/types';
+import { Product, AddonCategory, ProductImage } from '@/types';
+import ImageUpload from './ImageUpload';
 
 interface ProductAdvancedFormProps {
   product?: Product;
@@ -77,12 +78,18 @@ const ProductAdvancedForm: React.FC<ProductAdvancedFormProps> = ({
     updateField('allergens', formData.allergens.filter((_, i) => i !== index));
   };
 
+  // Adicionar estado para imagens
+  const [images, setImages] = useState<ProductImage[]>(
+    product?.images || []
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Limpar campos vazios
+    // Incluir imagens nos dados salvos
     const cleanedData = {
       ...formData,
+      images: images,
       sale_price: formData.sale_price || undefined,
       preparation_time: formData.preparation_time || undefined,
       daily_stock: formData.daily_stock || undefined,
