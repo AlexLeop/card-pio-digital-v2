@@ -27,6 +27,7 @@ interface ProductModalProps {
   ) => void;
 }
 
+// No início da função do componente, antes do return
 const ProductModal: React.FC<ProductModalProps> = ({
   product,
   store, // Receber store
