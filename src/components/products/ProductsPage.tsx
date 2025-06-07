@@ -120,13 +120,16 @@ const ProductsPage: React.FC = () => {
         open={showAdvancedForm} 
         onOpenChange={(isOpen) => {
           console.log('[ProductsPage] Dialog onOpenChange triggered. isOpen:', isOpen);
-          setShowAdvancedForm(isOpen);
           if (!isOpen) {
-            handleCloseAdvancedForm();
+            setShowAdvancedForm(false);
+            setSelectedProduct({});
           }
         }}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" id="advanced-form-dialog-page">
+        <DialogContent 
+          className="max-w-4xl max-h-[90vh] overflow-y-auto" 
+          style={{ zIndex: 9999 }}
+        >
           <DialogHeader>
             <DialogTitle>
               {Object.keys(selectedProduct).length > 0 && 'id' in selectedProduct ? 'Editar Produto' : 'Novo Produto'}
@@ -137,20 +140,12 @@ const ProductsPage: React.FC = () => {
                 : 'Preencha as informações para criar um novo produto'}
             </DialogDescription>
           </DialogHeader>
-          // Substitua temporariamente o Dialog por:
-          {showAdvancedForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto">
-              <h2 className="text-xl font-bold mb-4">Novo Produto</h2>
-              <ProductAdvancedForm
-                product={selectedProduct as Product} 
-                addonCategories={[]} 
-                onSave={handleSaveAdvanced}
-                onCancel={handleCloseAdvancedForm}
-              />
-            </div>
-          </div>
-          )}
+          <ProductAdvancedForm
+            product={selectedProduct as Product} 
+            addonCategories={[]} 
+            onSave={handleSaveAdvanced}
+            onCancel={handleCloseAdvancedForm}
+          />
         </DialogContent>
       </Dialog>
 
