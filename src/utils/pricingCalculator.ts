@@ -23,9 +23,8 @@ export const calculatePricing = (
     
     // Regra 1: Menos adicionais que o limite definido
     if (totalAddonsSelected < product.max_included_quantity) {
-      // CORREÇÃO: Ignora o preço do produto e cobra apenas pelos adicionais
+      // Ignora o preço do produto e cobra apenas pelos adicionais
       productTotal = 0;
-      // Cobra a soma dos valores individuais de cada adicional × quantidade do produto
       addonsTotal = addons.reduce((sum, addon) => {
         return sum + (addon.price * (addon.quantity || 1));
       }, 0) * quantity;
@@ -38,8 +37,8 @@ export const calculatePricing = (
     }
     // Regra 3: Mais adicionais do que o permitido
     else {
-      // Cobra o preço fixo + todos os adicionais
-      productTotal = productPrice * quantity;
+      // CORREÇÃO: Ignora o preço do produto e cobra apenas pelos adicionais (mesma lógica da Regra 1)
+      productTotal = 0;
       addonsTotal = addons.reduce((sum, addon) => {
         return sum + (addon.price * (addon.quantity || 1));
       }, 0) * quantity;
