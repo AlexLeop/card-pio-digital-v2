@@ -412,16 +412,45 @@ const ProductModal: React.FC<ProductModalProps> = ({
                               <Button
                                 variant="outline"
                                 size="sm"
-                                // Substituir as ocorrências por:
-                                getAddonQuantity(category.id, addon.id)
-                                
-                                value={selectedAddons[category.id]?.find(a => a.id === addon.id)?.quantity || 0}
-                                
-                                // Linha 445 (aproximadamente):
-                                {selectedAddons[category.id]?.find(a => a.id === addon.id)?.quantity || 0}
-                                
-                                // Linha 453 (aproximadamente):
-                                onClick={() => updateAddonQuantity(category.id, addon.id, Math.min(10, (selectedAddons[category.id]?.find(a => a.id === addon.id)?.quantity || 0) + 1))}
+                                onClick={() => updateAddonQuantity(category.id, addon.id, Math.max(0, getAddonQuantity(category.id, addon.id) - 1))}
+                              >
+                                -
+                              </Button>
+                              
+                              {editingAddonId === addon.id ? (
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="10"
+                                  value={getAddonQuantity(category.id, addon.id)}
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value) || 0;
+                                    updateAddonQuantity(category.id, addon.id, Math.max(0, Math.min(10, value)));
+                                  }}
+                                  onBlur={() => setEditingAddonId(null)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      setEditingAddonId(null);
+                                    }
+                                  }}
+                                  className="w-16 text-center"
+                                  autoFocus
+                                />
+                              ) : (
+                                <div 
+                                  className="w-16 h-9 flex items-center justify-center border border-gray-300 rounded cursor-pointer hover:bg-gray-50 transition-colors"
+                                  onClick={() => setEditingAddonId(addon.id)}
+                                >
+                                  <span className="text-sm font-medium">
+                                    {getAddonQuantity(category.id, addon.id)}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => updateAddonQuantity(category.id, addon.id, Math.min(10, getAddonQuantity(category.id, addon.id) + 1))}
                               >
                                 +
                               </Button>
