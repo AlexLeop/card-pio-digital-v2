@@ -6,7 +6,7 @@ import { WeeklySchedule } from './WeeklySchedule';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Clock, Plus } from 'lucide-react'; // ADICIONAR Plus AQUI
+import { Clock, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
