@@ -35,7 +35,7 @@ interface CheckoutModalProps {
   store: Store;
   onClose: () => void;
   onSuccess: () => void;
-  scheduledFor?: string;
+  scheduledFor?: string; // Apenas recebe a informação
 }
 
 const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -43,7 +43,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
   store,
   onClose,
   onSuccess,
-  scheduledFor
+  scheduledFor // Recebe do carrinho
 }) => {
   const [step, setStep] = useState<'info' | 'payment'>('info');
   const [loading, setLoading] = useState(false);
@@ -72,7 +72,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
     state: ''
   });
 
-  // Order data
+  // Order data - apenas usa o scheduledFor recebido
   const [orderData, setOrderData] = useState<CheckoutOrderData>({
     delivery_type: 'delivery' as 'delivery' | 'pickup',
     notes: '',

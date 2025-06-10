@@ -27,8 +27,7 @@ interface ProductModalProps {
     product: Product, 
     quantity: number, 
     addons: ProductAddon[], 
-    notes?: string,
-    scheduledFor?: string
+    notes?: string
   ) => void;
 }
 
@@ -44,7 +43,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [scheduledFor, setScheduledFor] = useState('');
   
   // Remover estas linhas duplicadas:
   // // Image gallery state
@@ -203,7 +201,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
       setSelectedAddons({});
       setQuantity(1);
       setNotes('');
-      setScheduledFor(''); // Use empty string, not initialScheduledFor
       setValidationErrors([]);
     }
   }, [product, productAddons]);
@@ -304,7 +301,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
     }
 
     const allSelectedAddons = Object.values(selectedAddons).flat();
-    onAddToCart(product, quantity, allSelectedAddons, notes || undefined, scheduledFor || undefined);
+    onAddToCart(product, quantity, allSelectedAddons, notes || undefined);
     onClose();
   };
 
@@ -691,38 +688,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
               className="min-h-[80px]"
             />
           </div>
-
-          {product?.allow_same_day_scheduling && (
-            <div className="space-y-2">
-              <Label>Agendar para (opcional)</Label>
-              <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                <Button
-                  type="button"
-                  variant={!scheduledFor ? 'default' : 'outline'}
-                  onClick={() => setScheduledFor('')}
-                  className="text-sm"
-                >
-                  Agora
-                </Button>
-                {availableSlots.map((slot, index) => (
-                  <Button
-                    key={index}
-                    type="button"
-                    variant={scheduledFor === `${slot.date}T${slot.time}` ? 'default' : 'outline'}
-                    onClick={() => setScheduledFor(`${slot.date}T${slot.time}`)}
-                    className="text-sm"
-                  >
-                    {formatDateTime(slot.date, slot.time)}
-                  </Button>
-                ))}
-              </div>
-              {availableSlots.length === 0 && (
-                <p className="text-sm text-gray-500">
-                  Nenhum horário disponível para agendamento
-                </p>
-              )}
-            </div>
-          )}
 
           {/* Price Summary */}
           <div className="bg-gray-50 rounded-lg p-4 space-y-2">

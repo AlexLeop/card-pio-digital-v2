@@ -1,14 +1,13 @@
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Minus, Plus, Trash2, ShoppingCart, Clock } from 'lucide-react';
 import { CartItem, Store } from '@/types';
 import { calculateOrderTotal } from '@/utils/orderService';
-import { format } from 'date-fns';
-import { Clock } from 'lucide-react';
 import { SchedulingManager } from '@/utils/stockManager';
 
 interface CartModalProps {
@@ -18,8 +17,7 @@ interface CartModalProps {
   onUpdateItem: (index: number, updates: Partial<CartItem>) => void;
   onRemoveItem: (index: number) => void;
   onClearCart: () => void;
-  onCheckout: () => void;
-  onScheduleOrder: (scheduledFor: string) => void; // Nova prop
+  onCheckout: (scheduledFor?: string) => void;
 }
 
 const CartModal: React.FC<CartModalProps> = ({
@@ -29,8 +27,7 @@ const CartModal: React.FC<CartModalProps> = ({
   onUpdateItem,
   onRemoveItem,
   onClearCart,
-  onCheckout,
-  onScheduleOrder
+  onCheckout
 }) => {
   const [scheduledFor, setScheduledFor] = useState<string>('');
 
@@ -46,11 +43,10 @@ const CartModal: React.FC<CartModalProps> = ({
     return date.toLocaleDateString('pt-BR') + ' às ' + timeStr;
   };
 
-  // Usar a calculadora unificada em vez do cálculo manual
+  // Usar a calculadora unificada
   const totals = calculateOrderTotal(cart, 0);
   const cartTotal = totals.total;
 
-  // Adicionar função para verificar se pode prosseguir
   const canProceed = () => {
     if (cart.length === 0) return false;
     const minimumOrder = store.minimum_order || 0;
@@ -63,6 +59,10 @@ const CartModal: React.FC<CartModalProps> = ({
     } else {
       onUpdateItem(index, { quantity: newQuantity });
     }
+  };
+
+  const handleCheckout = () => {
+    onCheckout(scheduledFor || undefined);
   };
 
   return (
@@ -125,12 +125,6 @@ const CartModal: React.FC<CartModalProps> = ({
                             </p>
                           )}
 
-                          {item.scheduled_for && (
-                            <p className="text-sm text-gray-600 mb-2">
-                              <strong>Agendado para:</strong> {new Date(item.scheduled_for).toLocaleString()}
-                            </p>
-                          )}
-
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <Button
@@ -176,6 +170,42 @@ const CartModal: React.FC<CartModalProps> = ({
               })}
             </div>
 
+            {/* Seção de agendamento */}
+            {store.allow_scheduling && cart.length > 0 && (
+              <div className="space-y-2 border-t pt-4">
+                <Label className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Agendar pedido para (opcional)
+                </Label>
+                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                  <Button
+                    type="button"
+                    variant={!scheduledFor ? 'default' : 'outline'}
+                    onClick={() => setScheduledFor('')}
+                    className="text-sm"
+                  >
+                    Agora
+                  </Button>
+                  {availableSlots.map((slot, index) => (
+                    <Button
+                      key={index}
+                      type="button"
+                      variant={scheduledFor === `${slot.date}T${slot.time}` ? 'default' : 'outline'}
+                      onClick={() => setScheduledFor(`${slot.date}T${slot.time}`)}
+                      className="text-sm"
+                    >
+                      {formatDateTime(slot.date, slot.time)}
+                    </Button>
+                  ))}
+                </div>
+                {availableSlots.length === 0 && (
+                  <p className="text-sm text-gray-500">
+                    Nenhum horário disponível para agendamento
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Cart Summary */}
             <div className="border-t pt-4 mt-4">
               <div className="flex justify-between items-center mb-4">
@@ -211,7 +241,7 @@ const CartModal: React.FC<CartModalProps> = ({
                   Limpar Carrinho
                 </Button>
                 <Button
-                  onClick={onCheckout}
+                  onClick={handleCheckout}
                   disabled={!canProceed()}
                   className={`flex-1 ${
                     !canProceed() 
@@ -226,48 +256,6 @@ const CartModal: React.FC<CartModalProps> = ({
                 </Button>
               </div>
             </div>
-          </div>
-        )}
-        {/* Adicionar seção de agendamento antes do resumo do carrinho */}
-        {store.allow_scheduling && cart.length > 0 && (
-          <div className="space-y-2 mb-4">
-            <Label className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Agendar pedido para (opcional)
-            </Label>
-            <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-              <Button
-                type="button"
-                variant={!scheduledFor ? 'default' : 'outline'}
-                onClick={() => {
-                  setScheduledFor('');
-                  onScheduleOrder('');
-                }}
-                className="text-sm"
-              >
-                Agora
-              </Button>
-              {availableSlots.map((slot, index) => (
-                <Button
-                  key={index}
-                  type="button"
-                  variant={scheduledFor === `${slot.date}T${slot.time}` ? 'default' : 'outline'}
-                  onClick={() => {
-                    const dateTime = `${slot.date}T${slot.time}`;
-                    setScheduledFor(dateTime);
-                    onScheduleOrder(dateTime);
-                  }}
-                  className="text-sm"
-                >
-                  {formatDateTime(slot.date, slot.time)}
-                </Button>
-              ))}
-            </div>
-            {availableSlots.length === 0 && (
-              <p className="text-sm text-gray-500">
-                Nenhum horário disponível para agendamento
-              </p>
-            )}
           </div>
         )}
       </DialogContent>
