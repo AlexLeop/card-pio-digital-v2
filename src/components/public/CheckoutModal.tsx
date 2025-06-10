@@ -448,7 +448,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </CardContent>
               </Card>
 
-              {/* Scheduling */}
+              {/* Scheduling - versão melhorada */}
               {store.allow_scheduling && availableSlots.length > 0 && (
                 <Card>
                   <CardHeader>
@@ -458,25 +458,35 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-                      <Button
-                        variant={!orderData.scheduled_for ? 'default' : 'outline'}
-                        onClick={() => setOrderData(prev => ({ ...prev, scheduled_for: '' }))}
-                        size="sm"
-                      >
-                        O mais rápido possível
-                      </Button>
-                      {availableSlots.slice(0, 15).map((slot, index) => (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         <Button
-                          key={`${slot.date}-${slot.time}`}
-                          variant={orderData.scheduled_for === `${slot.date}T${slot.time}` ? 'default' : 'outline'}
-                          onClick={() => setOrderData(prev => ({ ...prev, scheduled_for: `${slot.date}T${slot.time}` }))}
+                          variant={!orderData.scheduled_for ? 'default' : 'outline'}
+                          onClick={() => setOrderData(prev => ({ ...prev, scheduled_for: '' }))}
                           size="sm"
-                          className="text-xs"
                         >
-                          {formatDateTime(slot.date, slot.time)}
+                          O mais rápido possível
                         </Button>
-                      ))}
+                        
+                        {/* Mostrar mais slots (primeiros 20) */}
+                        {availableSlots.slice(0, 20).map((slot, index) => (
+                          <Button
+                            key={`${slot.date}-${slot.time}`}
+                            variant={orderData.scheduled_for === `${slot.date}T${slot.time}` ? 'default' : 'outline'}
+                            onClick={() => setOrderData(prev => ({ ...prev, scheduled_for: `${slot.date}T${slot.time}` }))}
+                            size="sm"
+                            className="text-xs"
+                          >
+                            {formatDateTime(slot.date, slot.time)}
+                          </Button>
+                        ))}
+                      </div>
+                      
+                      {availableSlots.length > 20 && (
+                        <p className="text-sm text-gray-500 text-center">
+                          Mostrando os primeiros 20 horários. Total de {availableSlots.length} horários disponíveis.
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

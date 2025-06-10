@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Plus, Minus, Trash2, ShoppingCart, Clock } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus, Minus, Trash2, ShoppingCart, Clock, Calendar } from 'lucide-react';
 import { CartItem, Store } from '@/types';
 import CheckoutModal from './CheckoutModal';
 import { calculatePricing } from '@/utils/pricingCalculator';
@@ -33,13 +34,67 @@ const Cart: React.FC<CartProps> = ({
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
   const [showCheckout, setShowCheckout] = useState(false);
   const [scheduledFor, setScheduledFor] = useState<string>('');
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const { toast } = useToast();
 
   // Obter slots disponíveis considerando todos os itens do carrinho
   const availableSlots = useMemo(() => {
     if (!store.allow_scheduling || cart.length === 0) return [];
-    return SchedulingManager.getAvailableSlots(store, deliveryType, 7, cart);
+    return SchedulingManager.getAvailableSlots(store, deliveryType, 30, cart);
   }, [store, deliveryType, cart]);
+
+  // Agrupar slots por data
+  const slotsByDate = useMemo(() => {
+    const grouped: { [date: string]: any[] } = {};
+    availableSlots.forEach(slot => {
+      if (!grouped[slot.date]) {
+        grouped[slot.date] = [];
+      }
+      grouped[slot.date].push(slot);
+    });
+    return grouped;
+  }, [availableSlots]);
+
+  // Primeiros 6 slots para exibição rápida
+  const quickSlots = useMemo(() => {
+    return availableSlots.slice(0, 6);
+  }, [availableSlots]);
+
+  // Função para gerar dias do calendário
+  const generateCalendarDays = () => {
+    const days = [];
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    // Gerar para os próximos 2 meses
+    for (let monthOffset = 0; monthOffset < 2; monthOffset++) {
+      const month = (currentMonth + monthOffset) % 12;
+      const year = currentYear + Math.floor((currentMonth + monthOffset) / 12);
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDate = new Date(firstDay);
+      startDate.setDate(startDate.getDate() - firstDay.getDay());
+      
+      for (let i = 0; i < 42; i++) { // 6 semanas
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        
+        if (date.getMonth() === month && date >= today) {
+          days.push({
+            date,
+            dateStr: date.toISOString().split('T')[0]
+          });
+        } else if (date.getMonth() === month) {
+          days.push({ date: null, dateStr: '' });
+        }
+      }
+    }
+    
+    return days;
+  };
 
   // Validar agendamento selecionado
   const validateScheduling = (dateTime: string) => {
@@ -177,8 +232,8 @@ const Cart: React.FC<CartProps> = ({
             })}
           </div>
 
-          {/* Seção de Agendamento */}
-          {store.allow_scheduling && availableSlots.length > 0 && (
+          {/* Seção de Agendamento Melhorada */}
+          {store.allow_scheduling && (quickSlots.length > 0 || Object.keys(slotsByDate).length > 0) && (
             <>
               <Separator />
               <div className="space-y-3">
@@ -186,7 +241,9 @@ const Cart: React.FC<CartProps> = ({
                   <Clock className="h-4 w-4 mr-2" />
                   Agendamento (Opcional)
                 </h4>
-                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                
+                {/* Opções rápidas */}
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant={!scheduledFor ? 'default' : 'outline'}
                     onClick={() => setScheduledFor('')}
@@ -194,29 +251,48 @@ const Cart: React.FC<CartProps> = ({
                   >
                     Agora
                   </Button>
-                  {availableSlots.map((slot) => {
-                    const dateTime = `${slot.date}T${slot.time}`;
-                    const isSelected = scheduledFor === dateTime;
-                    
-                    return (
-                      <Button
-                        key={dateTime}
-                        variant={isSelected ? 'default' : 'outline'}
-                        onClick={() => {
-                          setScheduledFor(dateTime);
-                          validateScheduling(dateTime);
-                        }}
-                        className="text-sm"
-                        disabled={!slot.available}
-                      >
-                        {new Date(`${slot.date}T${slot.time}`).toLocaleDateString('pt-BR', {
-                          day: '2-digit',
-                          month: '2-digit'
-                        })} às {slot.time}
-                      </Button>
-                    );
-                  })}
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowCalendar(true)}
+                    className="text-sm"
+                  >
+                    <Calendar className="h-4 w-4 mr-1" />
+                    Escolher Data
+                  </Button>
                 </div>
+
+                {/* Slots rápidos */}
+                {quickSlots.length > 0 && (
+                  <>
+                    <p className="text-sm text-gray-600">Próximos horários:</p>
+                    <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                      {quickSlots.map((slot) => {
+                        const dateTime = `${slot.date}T${slot.time}`;
+                        const isSelected = scheduledFor === dateTime;
+                        const date = new Date(`${slot.date}T${slot.time}`);
+                        
+                        return (
+                          <Button
+                            key={dateTime}
+                            variant={isSelected ? 'default' : 'outline'}
+                            onClick={() => {
+                              setScheduledFor(dateTime);
+                              validateScheduling(dateTime);
+                            }}
+                            className="text-sm"
+                            disabled={!slot.available}
+                          >
+                            {date.toLocaleDateString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit'
+                            })} às {slot.time}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
             </>
           )}
@@ -302,6 +378,95 @@ const Cart: React.FC<CartProps> = ({
           </Button>
         </CardContent>
       </Card>
+
+      {/* Modal do Calendário */}
+      {showCalendar && (
+        <Dialog open={showCalendar} onOpenChange={setShowCalendar}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Escolher Data e Horário</DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Calendário de datas */}
+              <div>
+                <h4 className="font-medium mb-3">Selecione uma data:</h4>
+                <div className="grid grid-cols-7 gap-1 text-center text-sm">
+                  {/* Cabeçalho dos dias da semana */}
+                  {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
+                    <div key={day} className="p-2 font-medium text-gray-500">
+                      {day}
+                    </div>
+                  ))}
+                  
+                  {/* Dias do calendário */}
+                  {generateCalendarDays().map((day, index) => {
+                    const hasSlots = day.dateStr && slotsByDate[day.dateStr]?.length > 0;
+                    const isSelected = selectedDate?.toDateString() === day.date?.toDateString();
+                    
+                    return (
+                      <Button
+                        key={index}
+                        variant={isSelected ? 'default' : hasSlots ? 'outline' : 'ghost'}
+                        onClick={() => hasSlots && day.date ? setSelectedDate(day.date) : null}
+                        disabled={!hasSlots || !day.date}
+                        className={`h-10 w-10 p-0 text-sm ${
+                          !day.date ? 'invisible' : 
+                          hasSlots ? 'border-green-200 hover:border-green-300' : 
+                          'text-gray-300 cursor-not-allowed'
+                        }`}
+                      >
+                        {day.date?.getDate()}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Horários disponíveis */}
+              <div>
+                <h4 className="font-medium mb-3">
+                  {selectedDate ? 
+                    `Horários para ${selectedDate.toLocaleDateString('pt-BR')}:` : 
+                    'Selecione uma data para ver os horários'
+                  }
+                </h4>
+                
+                {selectedDate && slotsByDate[selectedDate.toISOString().split('T')[0]] && (
+                  <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                    {slotsByDate[selectedDate.toISOString().split('T')[0]].map((slot: any) => {
+                      const dateTime = `${slot.date}T${slot.time}`;
+                      const isSelected = scheduledFor === dateTime;
+                      
+                      return (
+                        <Button
+                          key={dateTime}
+                          variant={isSelected ? 'default' : 'outline'}
+                          onClick={() => {
+                            setScheduledFor(dateTime);
+                            validateScheduling(dateTime);
+                            setShowCalendar(false);
+                          }}
+                          className="text-sm"
+                          disabled={!slot.available}
+                        >
+                          {slot.time}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button variant="outline" onClick={() => setShowCalendar(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Modal de Checkout */}
       {showCheckout && (

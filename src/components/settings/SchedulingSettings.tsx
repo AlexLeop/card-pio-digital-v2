@@ -5,6 +5,7 @@ import { WeeklySchedule } from './WeeklySchedule';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Clock } from 'lucide-react'; // ADICIONAR ESTA LINHA
 import { supabase } from '@/integrations/supabase/client';
 
 interface SchedulingSettingsProps {
