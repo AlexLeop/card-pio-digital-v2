@@ -325,15 +325,15 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
           </div>
         </div>
 
-        {/* Featured Products Section com formato quadrado e maior */}
+        {/* Featured Products Section com formato horizontal */}
         {featuredProducts.length > 0 && selectedCategory === 'all' && (
           <div className="mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Destaques</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {featuredProducts.map((product) => (
                 <Card 
                   key={product.id} 
-                  className="group hover:shadow-lg transition-all duration-300 cursor-pointer bg-white border-0 shadow-sm overflow-hidden rounded-lg"
+                  className="group hover:shadow-lg transition-all duration-300 cursor-pointer bg-white border-0 shadow-sm overflow-hidden rounded-lg flex-shrink-0 w-48"
                   onClick={() => setSelectedProduct(product)}
                 >
                   <div className="relative">

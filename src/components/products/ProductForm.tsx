@@ -122,50 +122,61 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, st
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
     setUploadingImage(true);
     try {
-      // Criar nome único para o arquivo
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${storeId}/${fileName}`; // CORRIGIR: usar storeId em vez de selectedStoreId
+      const uploadPromises = Array.from(files).map(async (file) => {
+        // Criar nome único para o arquivo
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${storeId}/${fileName}`;
 
-      // Upload para o Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, file);
+        // Upload para o Supabase Storage
+        const { data, error } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Obter URL pública
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
+        // Obter URL pública
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
 
-      const newImage: ProductImage = {
-        url: publicUrl,
-        is_primary: formData.images.length === 0,
-        order: formData.images.length
-      };
+        return {
+          url: publicUrl,
+          is_primary: false,
+          order: 0
+        };
+      });
 
-      updateField('images', [...formData.images, newImage]);
+      const uploadedImages = await Promise.all(uploadPromises);
       
-      // Se é a primeira imagem, definir como image_url principal
-      if (formData.images.length === 0) {
-        updateField('image_url', publicUrl);
+      // Definir a primeira imagem como principal se não houver imagens
+      if (formData.images.length === 0 && uploadedImages.length > 0) {
+        uploadedImages[0].is_primary = true;
+        updateField('image_url', uploadedImages[0].url);
       }
+      
+      // Atualizar ordem das imagens
+      const updatedImages = uploadedImages.map((img, index) => ({
+        ...img,
+        order: formData.images.length + index
+      }));
+
+      updateField('images', [...formData.images, ...updatedImages]);
       
       toast({
         title: "Sucesso",
-        description: "Imagem enviada com sucesso!"
+        description: `${uploadedImages.length} imagem(ns) enviada(s) com sucesso!`
       });
     } catch (error) {
-      console.error('Erro ao fazer upload da imagem:', error);
+      console.error('Erro ao fazer upload das imagens:', error);
       toast({
         title: "Erro",
-        description: "Erro ao enviar imagem. Tente novamente.",
+        description: "Erro ao enviar imagens. Tente novamente.",
         variant: "destructive"
       });
     } finally {
@@ -434,6 +445,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, st
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleImageUpload}
                     className="hidden"
                   />
@@ -444,7 +456,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, st
                     disabled={uploadingImage}
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    {uploadingImage ? 'Enviando...' : 'Enviar Nova Imagem'}
+                    {uploadingImage ? 'Enviando...' : 'Enviar Múltiplas Imagens'}
                   </Button>
                 </div>
 
