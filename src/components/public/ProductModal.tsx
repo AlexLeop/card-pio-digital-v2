@@ -43,11 +43,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   const [notes, setNotes] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // Manter apenas esta declaração
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [scheduledFor, setScheduledFor] = useState('');
   
-  // Image gallery state
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  // Remover estas linhas duplicadas:
+  // // Image gallery state
+  // const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Adicionar a função formatDateTime
   const formatDateTime = (dateStr: string, timeStr: string) => {
