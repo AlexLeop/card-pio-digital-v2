@@ -1,12 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import { WeeklySchedule } from './WeeklySchedule';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Clock } from 'lucide-react'; // ADICIONAR ESTA LINHA
+import { Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface SchedulingSettingsProps {
   storeId: string;
@@ -23,6 +25,76 @@ const SchedulingSettings: React.FC<SchedulingSettingsProps> = ({ storeId, onSave
     { key: 'saturday', label: 'Sábado' },
     { key: 'sunday', label: 'Domingo' }
   ];
+
+  // ADICIONAR ESTADO PARA AS CONFIGURAÇÕES
+  const [settings, setSettings] = useState({
+    allow_scheduling: false,
+    same_day_cutoff_time: '',
+    weekly_schedule: {},
+    special_dates: [],
+    delivery_schedule: {}
+  });
+  
+  const [loading, setLoading] = useState(false);
+
+  // CARREGAR CONFIGURAÇÕES DO BANCO
+  useEffect(() => {
+    loadSettings();
+  }, [storeId]);
+
+  const loadSettings = async () => {
+    setLoading(true);
+    try {
+      const { data: store, error } = await supabase
+        .from('stores')
+        .select('*')
+        .eq('id', storeId)
+        .single();
+
+      if (error) throw error;
+
+      if (store) {
+        // Usar os dados do banco ou inicializar com valores vazios
+        setSettings({
+          allow_scheduling: store.allow_scheduling || false,
+          same_day_cutoff_time: store.same_day_cutoff_time || '',
+          weekly_schedule: store.weekly_schedule || {},
+          special_dates: store.special_dates || [],
+          delivery_schedule: store.delivery_schedule || {}
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configurações:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar configurações de agendamento.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // FUNÇÃO PARA ATUALIZAR CONFIGURAÇÕES
+  const onSettingChange = async (field: string, value: any) => {
+    try {
+      setSettings(prev => ({ ...prev, [field]: value }));
+      
+      const { error } = await supabase
+        .from('stores')
+        .update({ [field]: value })
+        .eq('id', storeId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Erro ao salvar configuração:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao salvar configuração.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const updateWeeklySchedule = (day: string, field: string, value: any) => {
     const updatedSchedule = {
@@ -63,7 +135,7 @@ const SchedulingSettings: React.FC<SchedulingSettingsProps> = ({ storeId, onSave
     const newSlotId = `slot_${Date.now()}`;
     const updatedSchedule = {
       ...settings.delivery_schedule,
-      [newSlotId]: { start: '09:00', end: '18:00', enabled: true }
+      [newSlotId]: { start: '', end: '', enabled: true }
     };
     onSettingChange('delivery_schedule', updatedSchedule);
   };
