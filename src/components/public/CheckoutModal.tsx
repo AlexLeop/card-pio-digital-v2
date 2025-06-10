@@ -35,7 +35,7 @@ interface CheckoutModalProps {
   store: Store;
   onClose: () => void;
   onSuccess: () => void;
-  initialScheduledFor?: string;
+  scheduledFor?: string; // Renomeado de initialScheduledFor para scheduledFor
 }
 
 const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -43,7 +43,19 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
   store,
   onClose,
   onSuccess,
-  initialScheduledFor // Adicionar esta linha
+  scheduledFor
+}) => {
+  // Remover estados e lógica de agendamento
+  // Remover a seção de seleção de horário do JSX
+  // Usar scheduledFor diretamente ao criar o pedido
+}
+
+const CheckoutModal: React.FC<CheckoutModalProps> = ({
+  cart,
+  store,
+  onClose,
+  onSuccess,
+  scheduledFor
 }) => {
   const [step, setStep] = useState<'info' | 'payment'>('info');
   const [loading, setLoading] = useState(false);

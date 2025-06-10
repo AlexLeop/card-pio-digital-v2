@@ -18,6 +18,7 @@ import { useStockManager } from '@/hooks/useStockManager';
 import { useProducts } from '@/hooks/useProducts';
 import { toast } from '@/hooks/use-toast';
 
+// Remover estas props e estados
 interface ProductModalProps {
   product: Product | null;
   store: Store;
@@ -26,8 +27,8 @@ interface ProductModalProps {
     product: Product, 
     quantity: number, 
     addons: ProductAddon[], 
-    notes?: string,
-    scheduledFor?: string
+    notes?: string
+    // Remover scheduledFor
   ) => void;
 }
 
@@ -40,7 +41,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   const [quantity, setQuantity] = useState(1);
   const [selectedAddons, setSelectedAddons] = useState<{ [key: string]: ProductAddon[] }>({});
   const [notes, setNotes] = useState('');
-  const [scheduledFor, setScheduledFor] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
   

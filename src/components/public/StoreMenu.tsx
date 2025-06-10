@@ -502,7 +502,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
       {showCart && (
         <CartModal
           cart={cart}
-          store={store} // Adicionar esta linha
+          store={store}
           onClose={() => setShowCart(false)}
           onUpdateItem={updateCartItem}
           onRemoveItem={removeCartItem}
@@ -511,6 +511,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
             setShowCart(false);
             setShowCheckout(true);
           }}
+          onScheduleOrder={setScheduledFor}
         />
       )}
 
@@ -520,6 +521,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
           store={store}
           onClose={() => setShowCheckout(false)}
           onSuccess={handleSuccessfulOrder}
+          scheduledFor={scheduledFor}
         />
       )}
     </div>
