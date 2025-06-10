@@ -15,6 +15,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useAddonCategories } from '@/hooks/useAddonCategories';
 import { Upload, X, Star, StarOff, Image as ImageIcon, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast'; // ADICIONAR ESTA IMPORTAÇÃO
 
 interface ProductFormProps {
   product?: Product;
@@ -129,7 +130,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, st
       // Criar nome único para o arquivo
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${selectedStoreId}/${fileName}`;
+      const filePath = `${storeId}/${fileName}`; // CORRIGIR: usar storeId em vez de selectedStoreId
 
       // Upload para o Supabase Storage
       const { data, error } = await supabase.storage
