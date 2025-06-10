@@ -35,19 +35,7 @@ interface CheckoutModalProps {
   store: Store;
   onClose: () => void;
   onSuccess: () => void;
-  scheduledFor?: string; // Renomeado de initialScheduledFor para scheduledFor
-}
-
-const CheckoutModal: React.FC<CheckoutModalProps> = ({
-  cart,
-  store,
-  onClose,
-  onSuccess,
-  scheduledFor
-}) => {
-  // Remover estados e lógica de agendamento
-  // Remover a seção de seleção de horário do JSX
-  // Usar scheduledFor diretamente ao criar o pedido
+  scheduledFor?: string;
 }
 
 const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -88,7 +76,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [orderData, setOrderData] = useState<CheckoutOrderData>({
     delivery_type: 'delivery' as 'delivery' | 'pickup',
     notes: '',
-    scheduled_for: initialScheduledFor || '' // Usar valor padrão se não fornecido
+    scheduled_for: scheduledFor || ''
   });
 
   // Calculate totals using the unified service
@@ -178,18 +166,27 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
       }
 
       // Validar estoque disponível para cada item do carrinho
-      for (const item of cart) {
-        if (item.product.daily_stock) {
-          const availableStock = getAvailableStock(item.product.id);
-          if (availableStock < item.quantity) {
-            toast({
-              title: "Estoque insuficiente",
-              description: `${item.product.name}: apenas ${availableStock} unidades disponíveis. Você selecionou ${item.quantity}.`,
-              variant: "destructive"
-            });
-            return false;
+      const stockValidations = await Promise.all(
+        cart.map(async (item) => {
+          if (item.product.daily_stock) {
+            const availableStock = await getAvailableStock(item.product.id);
+            return { item, availableStock };
           }
-        }
+          return { item, availableStock: Infinity };
+        })
+      );
+
+      const invalidStock = stockValidations.find(
+        ({ item, availableStock }) => availableStock < item.quantity
+      );
+
+      if (invalidStock) {
+        toast({
+          title: "Estoque insuficiente",
+          description: `${invalidStock.item.product.name}: apenas ${invalidStock.availableStock} unidades disponíveis.`,
+          variant: "destructive"
+        });
+        return false;
       }
 
       // Validar valor mínimo do pedido
@@ -318,15 +315,13 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
         onSuccess={handlePaymentSuccess}
         onError={(error) => {
           console.error('Payment error:', error);
-          // Não fechar o modal automaticamente
-          // setShowMercadoPago(false); - Remova esta linha
-          
-          // Exibir toast com a mensagem de erro específica
           toast({
             title: "Erro no pagamento",
-            description: error, // Usar a mensagem de erro específica
+            description: error,
             variant: "destructive"
           });
+          setShowMercadoPago(false);
+          setStep('payment');
         }}
         onCancel={() => setShowMercadoPago(false)}
         storeId={store.id}
