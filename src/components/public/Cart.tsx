@@ -370,11 +370,29 @@ const Cart: React.FC<CartProps> = ({
 
           {/* Botão de Finalizar */}
           <Button
-            onClick={() => setShowCheckout(true)}
+            onClick={() => {
+              // Verificação adicional antes de abrir o checkout
+              if (!canProceed()) {
+                toast({
+                  title: "Valor mínimo não atingido",
+                  description: `O valor mínimo do pedido é R$ ${store.minimum_order?.toFixed(2) || '0,00'}`,
+                  variant: "destructive"
+                });
+                return;
+              }
+              setShowCheckout(true);
+            }}
             disabled={!canProceed()}
-            className="w-full"
+            className={`w-full ${
+              !canProceed() 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-primary hover:bg-primary/90'
+            }`}
           >
-            Finalizar Pedido
+            {!canProceed() && store.minimum_order && getSubtotal() < store.minimum_order
+              ? `Faltam R$ ${(store.minimum_order - getSubtotal()).toFixed(2)}`
+              : 'Finalizar Pedido'
+            }
           </Button>
         </CardContent>
       </Card>

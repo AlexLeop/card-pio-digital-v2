@@ -26,13 +26,20 @@ const SchedulingSettings: React.FC<SchedulingSettingsProps> = ({ storeId, onSave
     { key: 'sunday', label: 'Domingo' }
   ];
 
-  // ADICIONAR ESTADO PARA AS CONFIGURAÇÕES
+  // Estados
   const [settings, setSettings] = useState({
     allow_scheduling: false,
     same_day_cutoff_time: '',
     weekly_schedule: {},
     special_dates: [],
     delivery_schedule: {}
+  });
+  
+  // Adicionar estado para horários globais
+  const [globalDeliveryHours, setGlobalDeliveryHours] = useState({
+    enabled: false,
+    start: '08:00',
+    end: '22:00'
   });
   
   const [loading, setLoading] = useState(false);
@@ -62,6 +69,11 @@ const SchedulingSettings: React.FC<SchedulingSettingsProps> = ({ storeId, onSave
           special_dates: store.special_dates || [],
           delivery_schedule: store.delivery_schedule || {}
         });
+        
+        // Carregar horários globais de entrega
+        if (store.global_delivery_hours) {
+          setGlobalDeliveryHours(store.global_delivery_hours);
+        }
       }
     } catch (error) {
       console.error('Erro ao carregar configurações:', error);
@@ -238,60 +250,62 @@ const SchedulingSettings: React.FC<SchedulingSettingsProps> = ({ storeId, onSave
         </CardContent>
       </Card>
 
-      {/* Horários de Entrega */}
+      {/* Horários de Entrega Globais - SUBSTITUIR a seção anterior */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Horários de Entrega</CardTitle>
-            <Button onClick={addDeliverySlot} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Horário
-            </Button>
-          </div>
+          <CardTitle>Horários de Entrega</CardTitle>
+          <p className="text-sm text-gray-600">
+            Configure um horário que será aplicado a todos os dias em que a loja estiver aberta
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {Object.entries(settings.delivery_schedule).map(([slotId, slot]) => (
-            <div key={slotId} className="flex items-center space-x-4 p-3 border rounded-lg">
-              <Switch
-                checked={slot.enabled}
-                onCheckedChange={(checked) => updateDeliverySlot(slotId, 'enabled', checked)}
-              />
-              
-              <div className="flex items-center space-x-2">
-                <Label className="text-sm">De:</Label>
-                <Input
-                  type="time"
-                  value={slot.start}
-                  onChange={(e) => updateDeliverySlot(slotId, 'start', e.target.value)}
-                  className="w-32"
-                />
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Label className="text-sm">Até:</Label>
-                <Input
-                  type="time"
-                  value={slot.end}
-                  onChange={(e) => updateDeliverySlot(slotId, 'end', e.target.value)}
-                  className="w-32"
-                />
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => removeDeliverySlot(slotId)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+          <div className="flex items-center space-x-4">
+            <Switch
+              checked={globalDeliveryHours.enabled}
+              onCheckedChange={async (checked) => {
+                const newHours = { ...globalDeliveryHours, enabled: checked };
+                setGlobalDeliveryHours(newHours);
+                await onSettingChange('global_delivery_hours', newHours);
+              }}
+            />
+            <Label>Habilitar entregas</Label>
+          </div>
           
-          {Object.keys(settings.delivery_schedule).length === 0 && (
-            <p className="text-gray-500 text-center py-4">
-              Nenhum horário de entrega configurado
-            </p>
+          {globalDeliveryHours.enabled && (
+            <div className="flex items-center space-x-4 p-3 border rounded-lg">
+              <div className="flex items-center space-x-2">
+                <Label className="text-sm">Início das entregas:</Label>
+                <Input
+                  type="time"
+                  value={globalDeliveryHours.start}
+                  onChange={async (e) => {
+                    const newHours = { ...globalDeliveryHours, start: e.target.value };
+                    setGlobalDeliveryHours(newHours);
+                    await onSettingChange('global_delivery_hours', newHours);
+                  }}
+                  className="w-32"
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Label className="text-sm">Fim das entregas:</Label>
+                <Input
+                  type="time"
+                  value={globalDeliveryHours.end}
+                  onChange={async (e) => {
+                    const newHours = { ...globalDeliveryHours, end: e.target.value };
+                    setGlobalDeliveryHours(newHours);
+                    await onSettingChange('global_delivery_hours', newHours);
+                  }}
+                  className="w-32"
+                />
+              </div>
+            </div>
           )}
+          
+          <div className="text-xs text-gray-500">
+            Este horário será aplicado automaticamente a todos os dias em que a loja estiver funcionando
+          </div>
         </CardContent>
       </Card>
 

@@ -126,12 +126,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, st
 
     setUploadingImage(true);
     try {
-      // TODO: Implementar upload real para storage
-      // Por enquanto, criar URL temporária
-      const imageUrl = URL.createObjectURL(file);
-      
+      // Criar nome único para o arquivo
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${selectedStoreId}/${fileName}`;
+
+      // Upload para o Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (error) throw error;
+
+      // Obter URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
       const newImage: ProductImage = {
-        url: imageUrl,
+        url: publicUrl,
         is_primary: formData.images.length === 0,
         order: formData.images.length
       };
@@ -140,10 +153,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, st
       
       // Se é a primeira imagem, definir como image_url principal
       if (formData.images.length === 0) {
-        updateField('image_url', imageUrl);
+        updateField('image_url', publicUrl);
       }
+      
+      toast({
+        title: "Sucesso",
+        description: "Imagem enviada com sucesso!"
+      });
     } catch (error) {
       console.error('Erro ao fazer upload da imagem:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar imagem. Tente novamente.",
+        variant: "destructive"
+      });
     } finally {
       setUploadingImage(false);
     }
