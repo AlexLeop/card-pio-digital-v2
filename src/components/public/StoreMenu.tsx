@@ -39,6 +39,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [scheduledFor, setScheduledFor] = useState<string>(''); // Adicionar esta linha
   
   // Função para compartilhar
   const handleShare = async () => {
@@ -507,11 +508,11 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
           onUpdateItem={updateCartItem}
           onRemoveItem={removeCartItem}
           onClearCart={clearCart}
-          onCheckout={() => {
+          onCheckout={(scheduledTime) => {
+            setScheduledFor(scheduledTime || '');
             setShowCart(false);
             setShowCheckout(true);
           }}
-          onScheduleOrder={setScheduledFor}
         />
       )}
 
