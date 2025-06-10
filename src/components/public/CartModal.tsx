@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
-import { CartItem } from '@/types';
+import { CartItem, Store } from '@/types';
 import { calculateOrderTotal } from '@/utils/orderService';
 
 interface CartModalProps {
   cart: CartItem[];
+  store: Store; // Adicionar store como prop
   onClose: () => void;
   onUpdateItem: (index: number, updates: Partial<CartItem>) => void;
   onRemoveItem: (index: number) => void;
@@ -19,6 +20,7 @@ interface CartModalProps {
 
 const CartModal: React.FC<CartModalProps> = ({
   cart,
+  store, // Receber store
   onClose,
   onUpdateItem,
   onRemoveItem,
@@ -28,6 +30,13 @@ const CartModal: React.FC<CartModalProps> = ({
   // Usar a calculadora unificada em vez do cálculo manual
   const totals = calculateOrderTotal(cart, 0);
   const cartTotal = totals.total;
+
+  // Adicionar função para verificar se pode prosseguir
+  const canProceed = () => {
+    if (cart.length === 0) return false;
+    const minimumOrder = store.minimum_order || 0;
+    return cartTotal >= minimumOrder;
+  };
 
   const updateQuantity = (index: number, newQuantity: number) => {
     if (newQuantity <= 0) {
@@ -157,6 +166,23 @@ const CartModal: React.FC<CartModalProps> = ({
                 </span>
               </div>
 
+              {/* Mostrar informação do pedido mínimo */}
+              {store.minimum_order && store.minimum_order > 0 && (
+                <div className="text-xs text-gray-600 mb-3">
+                  {cartTotal < store.minimum_order ? (
+                    <div className="text-red-600">
+                      Pedido mínimo: R$ {store.minimum_order.toFixed(2)}
+                      <br />
+                      Faltam: R$ {(store.minimum_order - cartTotal).toFixed(2)}
+                    </div>
+                  ) : (
+                    <div className="text-green-600">
+                      ✓ Pedido mínimo atingido
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex space-x-3">
                 <Button
                   variant="outline"
@@ -167,9 +193,17 @@ const CartModal: React.FC<CartModalProps> = ({
                 </Button>
                 <Button
                   onClick={onCheckout}
-                  className="flex-1 bg-primary hover:bg-primary/90"
+                  disabled={!canProceed()}
+                  className={`flex-1 ${
+                    !canProceed() 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-primary hover:bg-primary/90'
+                  }`}
                 >
-                  Finalizar Pedido
+                  {!canProceed() && store.minimum_order && cartTotal < store.minimum_order
+                    ? `Faltam R$ ${(store.minimum_order - cartTotal).toFixed(2)}`
+                    : 'Finalizar Pedido'
+                  }
                 </Button>
               </div>
             </div>

@@ -502,6 +502,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
       {showCart && (
         <CartModal
           cart={cart}
+          store={store} // Adicionar esta linha
           onClose={() => setShowCart(false)}
           onUpdateItem={updateCartItem}
           onRemoveItem={removeCartItem}

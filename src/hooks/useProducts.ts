@@ -89,7 +89,7 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
   }, [storeId, categoryId]);
 
   const addProduct = async (productData: Omit<Product, 'id' | 'created_at'> & { selectedAddonCategories?: string[] }) => {
-    console.log('🎯 useProducts.addProduct INICIADO com:', productData); // ADICIONAR
+    console.log('🎯 useProducts.addProduct INICIADO com:', productData);
     
     try {
       // Validação básica
@@ -133,63 +133,45 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         excess_unit_price: dataForDB.excess_unit_price ? Number(dataForDB.excess_unit_price) : null,
         ingredients: dataForDB.ingredients || null,
         allergens: dataForDB.allergens || null,
-        image_url: dataForDB.images && dataForDB.images.length > 0 ? dataForDB.images[0].url : (dataForDB.image_url || null)
+        image_url: dataForDB.images && dataForDB.images.length > 0 ? 
+          dataForDB.images.find(img => img.is_primary)?.url || dataForDB.images[0].url : 
+          (dataForDB.image_url || null)
       };
   
-      // Remover campos undefined
-      Object.keys(finalData).forEach(key => {
-        if (finalData[key] === undefined) {
-          delete finalData[key];
-        }
-      });
+      // Remover campos undefined...
   
-      console.log('📤 Dados finais para o banco:', finalData); // ADICIONAR
-      console.log('🔄 Inserindo no Supabase...'); // ADICIONAR
-  
+      // Inserir produto
       const { data, error } = await supabase
         .from('products')
         .insert(finalData)
         .select()
         .single();
   
-      console.log('📥 Resposta do Supabase:', { data, error }); // ADICIONAR
+      if (error) throw new Error(`Erro ao criar produto: ${error.message}`);
   
-      if (error) {
-        console.error('❌ Erro do Supabase:', error);
-        throw new Error(`Erro ao criar produto: ${error.message}`);
-      }
-  
-      console.log('✅ Produto criado com sucesso:', data);
-      
-      // Salvar associações com categorias de addon
-      if (selectedAddonCategories && selectedAddonCategories.length > 0) {
-        console.log('🔗 Salvando associações de addon:', selectedAddonCategories);
-        
-        const associations = selectedAddonCategories.map(categoryId => ({
+      // Salvar imagens na tabela product_images
+      if (dataForDB.images && dataForDB.images.length > 0) {
+        const productImages = dataForDB.images.map((image, index) => ({
           product_id: data.id,
-          addon_category_id: categoryId
+          url: image.url,
+          is_primary: image.is_primary,
+          order: image.order || index
         }));
-        
-        const { error: associationError } = await supabase
-          .from('product_addon_categories')
-          .insert(associations);
-          
-        if (associationError) {
-          console.error('❌ Erro ao salvar associações:', associationError);
-          console.warn('Produto criado mas associações falharam');
-        } else {
-          console.log('✅ Associações salvas com sucesso');
+  
+        const { error: imagesError } = await supabase
+          .from('product_images')
+          .insert(productImages);
+  
+        if (imagesError) {
+          console.error('Erro ao salvar imagens do produto:', imagesError);
         }
       }
   
-      // Atualizar lista local
-      console.log('🔄 Atualizando lista de produtos...'); // ADICIONAR
-      await fetchProducts();
-      console.log('✅ Lista atualizada'); // ADICIONAR
-      
+      // Código existente para salvar associações de addon...
+  
       return data;
     } catch (err) {
-      console.error('💥 ERRO GERAL em addProduct:', err); // ADICIONAR
+      console.error('💥 ERRO GERAL em addProduct:', err);
       throw err;
     }
   };

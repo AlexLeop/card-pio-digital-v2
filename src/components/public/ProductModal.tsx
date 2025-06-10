@@ -47,6 +47,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   // Image gallery state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
+  // Adicionar a função formatDateTime
+  const formatDateTime = (dateStr: string, timeStr: string) => {
+    const date = new Date(dateStr + 'T' + timeStr);
+    return date.toLocaleDateString('pt-BR') + ' às ' + timeStr;
+  };
+  
   // Process product images with validation
   const getValidImageUrl = (url: string): string => {
     if (!url || url.trim() === '') return '/placeholder.svg';
