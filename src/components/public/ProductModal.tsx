@@ -27,8 +27,8 @@ interface ProductModalProps {
     product: Product, 
     quantity: number, 
     addons: ProductAddon[], 
-    notes?: string
-    // Remover scheduledFor
+    notes?: string,
+    scheduledFor?: string
   ) => void;
 }
 
@@ -43,6 +43,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   const [notes, setNotes] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [scheduledFor, setScheduledFor] = useState(''); // Adicionar este estado
   
   // Image gallery state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

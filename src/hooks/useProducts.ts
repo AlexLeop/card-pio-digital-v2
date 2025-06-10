@@ -30,7 +30,8 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
           categories(
             id,
             name
-          )
+          ),
+          product_images(*) // Adicionar esta linha para buscar as imagens
         `)
         .eq('store_id', storeId)
         .order('name', { ascending: true });
@@ -68,11 +69,20 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         allergens: product.allergens || [],
         image_url: product.image_url || '',
         created_at: product.created_at || new Date().toISOString(),
-        images: product.image_url ? [{
-          url: product.image_url,
-          is_primary: true,
-          order: 0
-        }] : []
+        images: [
+          // Incluir imagem principal se existir
+          ...(product.image_url ? [{
+            url: product.image_url,
+            is_primary: true,
+            order: 0
+          }] : []),
+          // Incluir imagens adicionais da tabela product_images
+          ...(product.product_images || []).map((img: any) => ({
+            url: img.url,
+            is_primary: img.is_primary,
+            order: img.order
+          }))
+        ]
       }));
 
       setProducts(mappedProducts);
@@ -176,7 +186,7 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
     }
   };
 
-  const updateProduct = async (productId: string, productData: Partial<Product> & { selectedAddonCategories?: string[] }) => {
+  const updateProduct = async (productId: string, productData: Partial<Product>) => {
     try {
       console.log('Atualizando produto:', productId, productData);
       
