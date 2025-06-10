@@ -42,7 +42,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
   cart,
   store,
   onClose,
-  onSuccess
+  onSuccess,
+  initialScheduledFor // Adicionar esta linha
 }) => {
   const [step, setStep] = useState<'info' | 'payment'>('info');
   const [loading, setLoading] = useState(false);
@@ -75,7 +76,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [orderData, setOrderData] = useState<CheckoutOrderData>({
     delivery_type: 'delivery' as 'delivery' | 'pickup',
     notes: '',
-    scheduled_for: initialScheduledFor
+    scheduled_for: initialScheduledFor || '' // Usar valor padrão se não fornecido
   });
 
   // Calculate totals using the unified service

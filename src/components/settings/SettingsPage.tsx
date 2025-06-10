@@ -426,20 +426,17 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
               />
             </div>
 
-            {/* ADICIONAR ESTA SEÇÃO */}
+            {/* Configurações Avançadas de Agendamento */}
             {store.allow_scheduling && (
-              <div className="space-y-2">
-                <Label htmlFor="same_day_cutoff_time">Horário Limite para Pedidos no Mesmo Dia</Label>
-                <Input
-                  id="same_day_cutoff_time"
-                  type="time"
-                  value={store.same_day_cutoff_time || '14:00'}
-                  onChange={(e) => setStore(prev => prev ? { ...prev, same_day_cutoff_time: e.target.value } : null)}
-                />
-                <p className="text-sm text-gray-500">
-                  Após este horário, pedidos só poderão ser agendados para o próximo dia
-                </p>
-              </div>
+            <SchedulingSettings 
+              storeId={storeId}
+              onSave={() => {
+                toast({
+                  title: "Sucesso!",
+                  description: "Configurações de horário salvas com sucesso."
+                });
+              }}
+            />
             )}
 
             <div className="grid grid-cols-2 gap-4">
@@ -477,15 +474,3 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
 };
 
 export default SettingsPage;
-
-// REMOVER TODO ESTE CÓDIGO:
-// Adicione após as configurações básicas:
-// <SchedulingSettings 
-//   storeId={storeId}
-//   onSave={() => {
-//     toast({
-//       title: "Sucesso!",
-//       description: "Configurações de horário salvas com sucesso."
-//     });
-//   }}
-// />

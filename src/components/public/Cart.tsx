@@ -217,11 +217,6 @@ const Cart: React.FC<CartProps> = ({
                     );
                   })}
                 </div>
-                {scheduledFor && (
-                  <p className="text-sm text-green-600 mt-2">
-                    ✓ Agendado para {new Date(scheduledFor).toLocaleDateString('pt-BR')} às {scheduledFor.split('T')[1]}
-                  </p>
-                )}
               </div>
             </>
           )}

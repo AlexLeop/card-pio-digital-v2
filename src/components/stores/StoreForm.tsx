@@ -42,7 +42,12 @@ const StoreForm: React.FC<StoreFormProps> = ({ store, onSave, onCancel }) => {
     accept_pix: store?.accept_pix ?? true,
     mercado_pago_access_token: store?.mercado_pago_access_token || '',
     mercado_pago_public_key: store?.mercado_pago_public_key || '',
-    owner_id: store?.owner_id || 'default-owner-id'
+    owner_id: store?.owner_id || 'default-owner-id',
+    allow_scheduling: store?.allow_scheduling ?? false,
+    same_day_cutoff_time: store?.same_day_cutoff_time || '14:00',
+    advance_days: store?.advance_days || 7,
+    delivery_schedule: store?.delivery_schedule || {},
+    pickup_schedule: store?.pickup_schedule || {},
   });
 
   const [loading, setLoading] = useState(false);
@@ -87,11 +92,12 @@ const StoreForm: React.FC<StoreFormProps> = ({ store, onSave, onCancel }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Tabs defaultValue="basic">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="basic">Básico</TabsTrigger>
           <TabsTrigger value="delivery">Entrega</TabsTrigger>
           <TabsTrigger value="appearance">Aparência</TabsTrigger>
           <TabsTrigger value="payment">Pagamento</TabsTrigger>
+          <TabsTrigger value="scheduling">Agendamento</TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic" className="space-y-4">
