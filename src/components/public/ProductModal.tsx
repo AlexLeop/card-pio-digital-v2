@@ -627,12 +627,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                                 <Input
                                   type="number"
                                   min="0"
-                                  max={addon.max_quantity || 99}
                                   value={getAddonQuantity(category.id, addon.id)}
                                   onChange={(e) => {
                                     const value = parseInt(e.target.value) || 0;
-                                    const maxQty = addon.max_quantity || 99;
-                                    updateAddonQuantity(category.id, addon.id, Math.max(0, Math.min(maxQty, value)));
+                                    updateAddonQuantity(category.id, addon.id, Math.max(0, value));
                                   }}
                                   onBlur={() => setEditingAddonId(null)}
                                   onKeyDown={(e) => {
@@ -657,10 +655,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  const maxQty = addon.max_quantity || 99;
-                                  updateAddonQuantity(category.id, addon.id, Math.min(maxQty, getAddonQuantity(category.id, addon.id) + 1))
-                                }}
+                                onClick={() => updateAddonQuantity(category.id, addon.id, getAddonQuantity(category.id, addon.id) + 1)}
                               >
                                 +
                               </Button>
