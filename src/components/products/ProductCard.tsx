@@ -19,14 +19,32 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onEdit,
   onView
 }) => {
+  // Função para obter a imagem principal
+  const getMainImage = () => {
+    if (product.images && product.images.length > 0) {
+      // Procurar pela imagem marcada como principal
+      const primaryImage = product.images.find(img => img.is_primary);
+      return primaryImage ? primaryImage.url : product.images[0].url;
+    }
+    return product.image_url;
+  };
+
+  const mainImageUrl = getMainImage();
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden">
       <div className="relative">
-        {product.image_url ? (
+        {mainImageUrl ? (
           <img
-            src={product.image_url}
+            src={mainImageUrl}
             alt={product.name}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              // Fallback para image_url se a imagem do array falhar
+              if (e.currentTarget.src !== product.image_url && product.image_url) {
+                e.currentTarget.src = product.image_url;
+              }
+            }}
           />
         ) : (
           <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">

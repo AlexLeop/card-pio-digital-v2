@@ -198,15 +198,16 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         ...dataForDB,
         price: dataForDB.price !== undefined ? Number(dataForDB.price) : undefined,
         sale_price: dataForDB.sale_price !== undefined ? Number(dataForDB.sale_price) : null,
-        preparation_time: dataForDB.preparation_time !== undefined ? 
-          (dataForDB.preparation_time === 0 ? 0 : Number(dataForDB.preparation_time) || null) : 
-          undefined,
+        preparation_time: dataForDB.preparation_time !== undefined ? Number(dataForDB.preparation_time) : undefined,
         daily_stock: dataForDB.daily_stock !== undefined ? Number(dataForDB.daily_stock) : null,
         current_stock: dataForDB.current_stock !== undefined ? Number(dataForDB.current_stock) : null,
         max_included_quantity: dataForDB.max_included_quantity !== undefined ? Number(dataForDB.max_included_quantity) : null,
         excess_unit_price: dataForDB.excess_unit_price !== undefined ? Number(dataForDB.excess_unit_price) : null,
         has_addons: selectedAddonCategories ? selectedAddonCategories.length > 0 : dataForDB.has_addons,
-        image_url: dataForDB.images && dataForDB.images.length > 0 ? dataForDB.images[0].url : dataForDB.image_url,
+        // Atualizar image_url com a imagem principal do array
+        image_url: dataForDB.images && dataForDB.images.length > 0 ? 
+          (dataForDB.images.find(img => img.is_primary)?.url || dataForDB.images[0].url) : 
+          dataForDB.image_url,
         images: undefined // Remove images property for DB update
       };
   

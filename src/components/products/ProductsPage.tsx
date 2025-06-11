@@ -33,6 +33,15 @@ import {
 } from 'lucide-react';
 import StoreSelector from '@/components/common/StoreSelector';
 
+// Função helper para obter a imagem principal
+const getMainImage = (product: Product) => {
+  if (product.images && product.images.length > 0) {
+    const primaryImage = product.images.find(img => img.is_primary);
+    return primaryImage ? primaryImage.url : product.images[0].url;
+  }
+  return product.image_url;
+};
+
 const ProductsPage: React.FC = () => {
   const { stores, loading: storesLoading } = useStores();
   const [selectedStoreId, setSelectedStoreId] = useState<string>('');
@@ -395,11 +404,17 @@ const ProductsPage: React.FC = () => {
                     <div className="space-y-3">
                       {/* Imagem do produto */}
                       <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                        {product.images && product.images.length > 0 ? (
+                        {getMainImage(product) ? (
                           <img 
-                            src={product.images[0]} 
+                            src={getMainImage(product)} 
                             alt={product.name}
                             className="w-full h-full object-cover rounded-lg"
+                            onError={(e) => {
+                              // Fallback para image_url se a imagem do array falhar
+                              if (e.currentTarget.src !== product.image_url && product.image_url) {
+                                e.currentTarget.src = product.image_url;
+                              }
+                            }}
                           />
                         ) : (
                           <ImageIcon className="h-12 w-12 text-gray-400" />
@@ -841,11 +856,17 @@ const ProductsPage: React.FC = () => {
             <div className="space-y-6">
               {/* Imagem do produto */}
               <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                {getMainImage(selectedProduct) ? (
                   <img 
-                    src={selectedProduct.images[0]} 
+                    src={getMainImage(selectedProduct)} 
                     alt={selectedProduct.name}
                     className="w-full h-full object-cover rounded-lg"
+                    onError={(e) => {
+                      // Fallback para image_url se a imagem do array falhar
+                      if (e.currentTarget.src !== selectedProduct.image_url && selectedProduct.image_url) {
+                        e.currentTarget.src = selectedProduct.image_url;
+                      }
+                    }}
                   />
                 ) : (
                   <div className="text-center space-y-2">
@@ -898,10 +919,10 @@ const ProductsPage: React.FC = () => {
                     {selectedProduct.is_active ? 'Ativo' : 'Inativo'}
                   </Badge>
                   <Badge 
-                    variant={product.is_available ? "default" : "secondary"}
+                    variant={selectedProduct.is_available ? "default" : "secondary"}
                     className="text-xs"
                   >
-                    {product.is_available ? 'Disponível' : 'Indisponível'}
+                    {selectedProduct.is_available ? 'Disponível' : 'Indisponível'}
                   </Badge>
                 </div>
               </div>
