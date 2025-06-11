@@ -134,8 +134,18 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   const { getAvailableStock, checkAvailability } = useStockManager(products);
   
   // Só chamar o hook se product.id existir
-  const { productAddons, loading } = useProductAddonsQuery(product.id);
-
+  const { productAddons, loading, error } = useProductAddonsQuery(product.id, store.id);
+  
+  // Adicionar logs para debug
+  console.log('ProductModal Debug:', {
+    productId: product.id,
+    storeId: store.id,
+    productAddons,
+    loading,
+    error,
+    addonsLength: productAddons?.length
+  });
+  
   // Calcular estoque disponível com verificação tripla
   const availableStock = useMemo(() => {
     if (!product || !product.id || !getAvailableStock) {
@@ -617,11 +627,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                                 <Input
                                   type="number"
                                   min="0"
-                                  max="10"
+                                  max={addon.max_quantity || 99}
                                   value={getAddonQuantity(category.id, addon.id)}
                                   onChange={(e) => {
                                     const value = parseInt(e.target.value) || 0;
-                                    updateAddonQuantity(category.id, addon.id, Math.max(0, Math.min(10, value)));
+                                    const maxQty = addon.max_quantity || 99;
+                                    updateAddonQuantity(category.id, addon.id, Math.max(0, Math.min(maxQty, value)));
                                   }}
                                   onBlur={() => setEditingAddonId(null)}
                                   onKeyDown={(e) => {
@@ -646,16 +657,26 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => updateAddonQuantity(category.id, addon.id, Math.min(10, getAddonQuantity(category.id, addon.id) + 1))}
+                                onClick={() => {
+                                  const maxQty = addon.max_quantity || 99;
+                                  updateAddonQuantity(category.id, addon.id, Math.min(maxQty, getAddonQuantity(category.id, addon.id) + 1))
+                                }}
                               >
                                 +
                               </Button>
                             </div>
                           )}
                           
-                          <span className="font-medium text-green-600">
-                            {addon.price > 0 ? `+R$ ${addon.price.toFixed(2)}` : 'Grátis'}
-                          </span>
+                          <div className="flex items-center space-x-3">
+                            <span className="font-medium text-green-600">
+                              {addon.price > 0 ? `+R$ ${addon.price.toFixed(2)}` : ''}
+                            </span>
+                            {addon.max_quantity && (
+                              <span className="text-xs text-gray-500">
+                                Máx: {addon.max_quantity}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
