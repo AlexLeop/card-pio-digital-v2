@@ -17,6 +17,7 @@ import { SchedulingManager } from '@/utils/stockManager';
 import { useStockManager } from '@/hooks/useStockManager';
 import { useProducts } from '@/hooks/useProducts';
 import { toast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Remover estas props e estados
 interface ProductModalProps {
@@ -136,15 +137,17 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   // Só chamar o hook se product.id existir
   const { productAddons, loading, error } = useProductAddonsQuery(product.id, store.id);
   
-  // Adicionar logs para debug
-  console.log('ProductModal Debug:', {
-    productId: product.id,
-    storeId: store.id,
-    productAddons,
-    loading,
-    error,
-    addonsLength: productAddons?.length
-  });
+  // Remover ou condicionar logs para desenvolvimento apenas
+  if (process.env.NODE_ENV === 'development') {
+    console.log('ProductModal Debug:', {
+      productId: product.id,
+      storeId: store.id,
+      productAddons,
+      loading,
+      error,
+      addonsLength: productAddons?.length
+    });
+  }
   
   // Calcular estoque disponível com verificação tripla
   const availableStock = useMemo(() => {
@@ -515,8 +518,28 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
 
           {/* Addons */}
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <span className="ml-2 text-sm text-gray-600">Carregando adicionais...</span>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="space-y-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
+                  <p className="text-sm text-yellow-800">
+                    Não foi possível carregar os adicionais. Você ainda pode fazer o pedido sem adicionais.
+                  </p>
+                </div>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-2 text-sm text-yellow-600 underline hover:text-yellow-800"
+                >
+                  Tentar novamente
+                </button>
+              </div>
             </div>
           ) : productAddons && productAddons.length > 0 ? (
             <div className="space-y-6">
