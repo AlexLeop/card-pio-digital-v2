@@ -226,16 +226,22 @@
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* REMOVER COMPLETAMENTE ESTAS LINHAS DE DEBUG:
-button {
-  outline: 2px solid red !important;
-  z-index: 10000 !important;
-  position: relative !important;
+
+/* Adicionar compatibilidade com Edge para backdrop-filter */
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
-button {
-  outline: 2px solid red !important;
-  z-index: 9999 !important;
-  position: relative !important;
+/* Compatibilidade para flexbox */
+.flex {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
 }
-*/
+
+/* Compatibilidade para grid */
+.grid {
+  display: -ms-grid;
+  display: grid;
+}

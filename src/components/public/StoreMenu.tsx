@@ -43,7 +43,8 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
   
   // Função para compartilhar
   const handleShare = async () => {
-    if (navigator.share) {
+    // Verificar se as APIs estão disponíveis
+    if (navigator.share && typeof navigator.share === 'function') {
       try {
         await navigator.share({
           title: store.name,
@@ -52,13 +53,57 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
         });
       } catch (error) {
         console.log('Erro ao compartilhar:', error);
+        // Fallback para clipboard
+        fallbackCopyToClipboard();
       }
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      fallbackCopyToClipboard();
+    }
+  };
+
+  const fallbackCopyToClipboard = () => {
+    // Método compatível com Edge mais antigo
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        toast({
+          title: "Link copiado!",
+          description: "O link foi copiado para a área de transferência.",
+        });
+      }).catch(() => {
+        // Fallback manual
+        copyToClipboardFallback(window.location.href);
+      });
+    } else {
+      // Fallback para navegadores mais antigos
+      copyToClipboardFallback(window.location.href);
+    }
+  };
+
+  const copyToClipboardFallback = (text: string) => {
+    // Método compatível com Edge legado
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      document.execCommand('copy');
       toast({
         title: "Link copiado!",
         description: "O link foi copiado para a área de transferência.",
       });
+    } catch (err) {
+      toast({
+        title: "Erro ao copiar",
+        description: "Tente selecionar e copiar manualmente",
+        variant: "destructive"
+      });
+    } finally {
+      document.body.removeChild(textArea);
     }
   };
   

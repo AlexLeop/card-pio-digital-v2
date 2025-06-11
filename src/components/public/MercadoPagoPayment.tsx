@@ -393,6 +393,8 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   
   const copyPixCode = async () => {
   try {
+  // Verificar se a API está disponível
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
   await navigator.clipboard.writeText(pixCode);
   setCopied(true);
   toast({
@@ -400,13 +402,47 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   description: "Cole no seu app de pagamentos"
   });
   setTimeout(() => setCopied(false), 2000);
+  } else {
+  // Fallback para Edge mais antigo
+  copyToClipboardFallback(pixCode);
+  }
   } catch (error) {
   console.error('Error copying to clipboard:', error);
+  // Tentar fallback
+  copyToClipboardFallback(pixCode);
+  }
+  };
+  
+  const copyToClipboardFallback = (text: string) => {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-999999px';
+  textArea.style.top = '-999999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  
+  try {
+  const successful = document.execCommand('copy');
+  if (successful) {
+  setCopied(true);
+  toast({
+  title: "Código PIX copiado!",
+  description: "Cole no seu app de pagamentos"
+  });
+  setTimeout(() => setCopied(false), 2000);
+  } else {
+  throw new Error('execCommand failed');
+  }
+  } catch (err) {
   toast({
   title: "Erro ao copiar",
   description: "Tente selecionar e copiar manualmente",
   variant: "destructive"
   });
+  } finally {
+  document.body.removeChild(textArea);
   }
   };
   
