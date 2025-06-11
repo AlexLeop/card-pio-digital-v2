@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import { StockManager } from '@/utils/stockManager';
 import { calculateOrderTotal } from '@/utils/orderService';
 import { useStockManager } from '@/hooks/useStockManager';
 import { isStoreOpen } from '@/utils/businessHours';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface StoreMenuProps {
   store: Store;
@@ -40,6 +41,9 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [scheduledFor, setScheduledFor] = useState<string>(''); // Adicionar esta linha
+  
+  // Adicionar estado para controlar o modal de busca
+  const [showSearchModal, setShowSearchModal] = useState(false);
   
   // Função para compartilhar
   const handleShare = async () => {
@@ -242,6 +246,18 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
     });
   };
 
+  // Função para lidar com a busca
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setShowSearchModal(true);
+  };
+
+  // Função para fechar o modal de busca
+  const handleCloseSearch = () => {
+    setShowSearchModal(false);
+    setSearchTerm('');
+  };
+
   if (productsLoading || categoriesLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -283,12 +299,12 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
             </div>
             
             {/* Ícones de busca, compartilhamento e carrinho */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               <Button
                 variant="ghost"
                 size="sm"
                 className="text-white hover:bg-white/20 p-2"
-                onClick={() => setShowSearch(!showSearch)}
+                onClick={() => setShowSearchModal(true)}
               >
                 <Search className="h-5 w-5" />
               </Button>
@@ -570,6 +586,61 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
           scheduledFor={scheduledFor}
         />
       )}
+
+      {/* Modal de Busca */}
+      <Dialog open={showSearchModal} onOpenChange={setShowSearchModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Buscar Produtos</DialogTitle>
+          </DialogHeader>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Digite para buscar..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-10"
+              autoFocus
+            />
+          </div>
+          <div className="mt-4 max-h-[300px] overflow-y-auto">
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-4 text-gray-500">
+                Nenhum produto encontrado
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {filteredProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer"
+                    onClick={() => {
+                      handleCloseSearch();
+                      // Aqui você pode adicionar a lógica para mostrar os detalhes do produto
+                    }}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden">
+                        <img
+                          src={product.image_url || '/placeholder.svg'}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{product.name}</h3>
+                        <p className="text-sm text-gray-500">
+                          R$ {product.price.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, ProductImage } from '@/types';
@@ -98,87 +97,50 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
     fetchProducts();
   }, [storeId, categoryId]);
 
-  const addProduct = async (productData: Omit<Product, 'id' | 'created_at'> & { selectedAddonCategories?: string[] }) => {
-    console.log('🎯 useProducts.addProduct INICIADO com:', productData);
-    
+  const addProduct = async (productData: Partial<Product>) => {
     try {
-      // Validação básica
-      if (!productData.name?.trim()) {
-        throw new Error('Nome do produto é obrigatório');
-      }
-      
-      if (!productData.price || productData.price <= 0) {
-        throw new Error('Preço deve ser maior que zero');
-      }
-      
-      if (!productData.category_id?.trim()) {
-        throw new Error('Categoria é obrigatória');
-      }
-      
-      if (!productData.store_id?.trim()) {
-        throw new Error('ID da loja é obrigatório');
-      }
-
-      console.log('✅ Validações passaram'); // ADICIONAR
-
       // Preparar dados para o banco
-      const { selectedAddonCategories, ...dataForDB } = productData;
-      
-      const finalData = {
-        name: dataForDB.name.trim(),
-        description: dataForDB.description?.trim() || null,
-        price: Number(dataForDB.price),
-        sale_price: dataForDB.sale_price ? Number(dataForDB.sale_price) : null,
-        category_id: dataForDB.category_id,
-        store_id: dataForDB.store_id,
-        is_featured: Boolean(dataForDB.is_featured),
-        is_available: dataForDB.is_available !== false,
-        is_active: dataForDB.is_active !== false,
-        has_addons: Boolean(selectedAddonCategories && selectedAddonCategories.length > 0),
-        allow_same_day_scheduling: Boolean(dataForDB.allow_same_day_scheduling),
-        preparation_time: dataForDB.preparation_time ? Number(dataForDB.preparation_time) : null,
-        daily_stock: dataForDB.daily_stock ? Number(dataForDB.daily_stock) : null,
-        current_stock: dataForDB.current_stock ? Number(dataForDB.current_stock) : null,
-        max_included_quantity: dataForDB.max_included_quantity ? Number(dataForDB.max_included_quantity) : null,
-        excess_unit_price: dataForDB.excess_unit_price ? Number(dataForDB.excess_unit_price) : null,
-        ingredients: dataForDB.ingredients || null,
-        allergens: dataForDB.allergens || null,
-        image_url: dataForDB.images && dataForDB.images.length > 0 ? 
-          dataForDB.images.find(img => img.is_primary)?.url || dataForDB.images[0].url : 
-          (dataForDB.image_url || null)
+      const dataForDB = {
+        ...productData,
+        store_id: productData.store_id,
+        price: Number(productData.price),
+        sale_price: productData.sale_price ? Number(productData.sale_price) : null,
+        preparation_time: productData.preparation_time ? Number(productData.preparation_time) : null,
+        daily_stock: productData.daily_stock ? Number(productData.daily_stock) : null,
+        current_stock: productData.current_stock ? Number(productData.current_stock) : null,
+        max_included_quantity: productData.max_included_quantity ? Number(productData.max_included_quantity) : null,
+        excess_unit_price: productData.excess_unit_price ? Number(productData.excess_unit_price) : null,
+        image_url: productData.images && productData.images.length > 0 ? productData.images[0].url : productData.image_url
       };
-  
-      // Remover campos undefined...
-  
+
       // Inserir produto
       const { data, error } = await supabase
         .from('products')
-        .insert(finalData)
+        .insert(dataForDB)
         .select()
         .single();
-  
-      if (error) throw new Error(`Erro ao criar produto: ${error.message}`);
-  
+
+      if (error) throw error;
+
       // Salvar imagens na tabela product_images
-      if (dataForDB.images && dataForDB.images.length > 0) {
-        const productImages = dataForDB.images.map((image, index) => ({
+      if (productData.images && productData.images.length > 0) {
+        const productImages = productData.images.map((image, index) => ({
           product_id: data.id,
           url: image.url,
           is_primary: image.is_primary,
-          order: image.order || index
+          order: index
         }));
-  
+
         const { error: imagesError } = await supabase
           .from('product_images')
           .insert(productImages);
-  
+
         if (imagesError) {
           console.error('Erro ao salvar imagens do produto:', imagesError);
+          throw imagesError;
         }
       }
-  
-      // Código existente para salvar associações de addon...
-  
+
       return data;
     } catch (err) {
       console.error('💥 ERRO GERAL em addProduct:', err);

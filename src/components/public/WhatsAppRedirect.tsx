@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
@@ -28,6 +27,8 @@ const WhatsAppRedirect: React.FC<WhatsAppRedirectProps> = ({
       ? `\n📍 *Endereço:* ${order.address}${order.number ? `, ${order.number}` : ''}${order.neighborhood ? `\n${order.neighborhood}` : ''}${order.complement ? `\nComplemento: ${order.complement}` : ''}`
       : '';
 
+    const notes = order.notes ? `\n\n📝 *Observações do Pedido:*\n${order.notes}` : '';
+
     return encodeURIComponent(
       `🛒 *Novo Pedido #${order.id.slice(0, 8)}*\n\n` +
       `👤 *Cliente:* ${order.customer_name}\n` +
@@ -37,7 +38,8 @@ const WhatsAppRedirect: React.FC<WhatsAppRedirectProps> = ({
       `💰 *Subtotal:* R$ ${order.subtotal.toFixed(2)}\n` +
       `${order.delivery_fee ? `🚚 *Taxa de entrega:* R$ ${order.delivery_fee.toFixed(2)}\n` : ''}` +
       `💳 *Total:* R$ ${order.total.toFixed(2)}\n` +
-      `💳 *Pagamento:* ${order.payment_method}\n\n` +
+      `💳 *Pagamento:* ${order.payment_method}\n` +
+      `${notes}\n\n` +
       `🕒 *Realizado em:* ${new Date(order.created_at).toLocaleString('pt-BR')}`
     );
   };
