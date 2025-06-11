@@ -159,7 +159,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
              product.is_available && 
              product.is_active &&
              (!product.daily_stock || checkAvailability(product.id, 1));
-    }).slice(0, 3);
+    }).slice(0, 10);
   }, [stockManagedProducts, checkAvailability]);
 
   // Get active categories that have products com verificações de segurança
