@@ -198,7 +198,9 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         ...dataForDB,
         price: dataForDB.price !== undefined ? Number(dataForDB.price) : undefined,
         sale_price: dataForDB.sale_price !== undefined ? Number(dataForDB.sale_price) : null,
-        preparation_time: dataForDB.preparation_time !== undefined ? Number(dataForDB.preparation_time) : null,
+        preparation_time: dataForDB.preparation_time !== undefined ? 
+          (dataForDB.preparation_time === 0 ? 0 : Number(dataForDB.preparation_time) || null) : 
+          undefined,
         daily_stock: dataForDB.daily_stock !== undefined ? Number(dataForDB.daily_stock) : null,
         current_stock: dataForDB.current_stock !== undefined ? Number(dataForDB.current_stock) : null,
         max_included_quantity: dataForDB.max_included_quantity !== undefined ? Number(dataForDB.max_included_quantity) : null,
@@ -217,6 +219,7 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
   
       console.log('Dados sendo enviados para atualização:', finalData);
   
+      // Após a atualização do produto principal
       const { data, error } = await supabase
         .from('products')
         .update(finalData)
@@ -227,6 +230,33 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
       if (error) {
         console.error('Erro do Supabase ao atualizar produto:', error);
         throw new Error(`Erro ao atualizar produto: ${error.message}`);
+      }
+  
+      // ADICIONAR: Atualizar imagens se fornecidas
+      if (productData.images !== undefined) {
+        // Remover imagens existentes
+        await supabase
+          .from('product_images')
+          .delete()
+          .eq('product_id', productId);
+        
+        // Inserir novas imagens se existirem
+        if (productData.images && productData.images.length > 0) {
+          const productImages = productData.images.map((image, index) => ({
+            product_id: productId,
+            url: image.url,
+            is_primary: image.is_primary,
+            order: image.order || index
+          }));
+  
+          const { error: imagesError } = await supabase
+            .from('product_images')
+            .insert(productImages);
+  
+          if (imagesError) {
+            console.error('Erro ao atualizar imagens do produto:', imagesError);
+          }
+        }
       }
   
       console.log('Produto atualizado com sucesso:', data);

@@ -184,17 +184,18 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Configurações da Loja</h1>
-        <Button onClick={handleSave} disabled={loading}>
+    <div className="container mx-auto p-4 lg:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl lg:text-3xl font-bold">Configurações da Loja</h1>
+        <Button onClick={handleSave} disabled={loading} className="w-full sm:w-auto">
           {loading ? 'Salvando...' : 'Salvar Configurações'}
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Layout melhorado com breakpoints mais específicos */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
         {/* Informações Básicas */}
-        <Card>
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle>Informações Básicas</CardTitle>
           </CardHeader>
@@ -240,8 +241,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
           </CardContent>
         </Card>
 
-        {/* Endereço */}
-        <Card>
+        {/* Endereço com melhor responsividade */}
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle>Endereço</CardTitle>
           </CardHeader>
@@ -255,8 +256,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-2 sm:col-span-1 lg:col-span-2">
                 <Label htmlFor="city">Cidade</Label>
                 <Input
                   id="city"
@@ -271,6 +272,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
                   id="state"
                   value={store.state || ''}
                   onChange={(e) => setStore(prev => prev ? { ...prev, state: e.target.value } : null)}
+                  maxLength={2}
+                  placeholder="SP"
                 />
               </div>
             </div>
@@ -281,80 +284,91 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
                 id="zip_code"
                 value={store.zip_code || ''}
                 onChange={(e) => setStore(prev => prev ? { ...prev, zip_code: e.target.value } : null)}
+                placeholder="00000-000"
+                className="max-w-xs"
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Configurações de Entrega */}
-        <Card>
+        {/* Configurações de Entrega com melhor organização */}
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle>Configurações de Entrega</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="delivery_available">Entrega Disponível</Label>
-              <Switch
-                id="delivery_available"
-                checked={store.delivery_available}
-                onCheckedChange={(checked) => setStore(prev => prev ? { ...prev, delivery_available: checked } : null)}
-              />
+          <CardContent className="space-y-6">
+            {/* Switches agrupados */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="delivery_available">Entrega Disponível</Label>
+                <Switch
+                  id="delivery_available"
+                  checked={store.delivery_available}
+                  onCheckedChange={(checked) => setStore(prev => prev ? { ...prev, delivery_available: checked } : null)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="pickup_available">Retirada Disponível</Label>
+                <Switch
+                  id="pickup_available"
+                  checked={store.pickup_available}
+                  onCheckedChange={(checked) => setStore(prev => prev ? { ...prev, pickup_available: checked } : null)}
+                />
+              </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label htmlFor="pickup_available">Retirada Disponível</Label>
-              <Switch
-                id="pickup_available"
-                checked={store.pickup_available}
-                onCheckedChange={(checked) => setStore(prev => prev ? { ...prev, pickup_available: checked } : null)}
-              />
+            {/* Valores monetários agrupados */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="delivery_fee">Taxa de Entrega (R$)</Label>
+                <Input
+                  id="delivery_fee"
+                  type="number"
+                  step="0.01"
+                  value={store.delivery_fee || 0}
+                  onChange={(e) => setStore(prev => prev ? { ...prev, delivery_fee: parseFloat(e.target.value) || 0 } : null)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="minimum_order">Pedido Mínimo (R$)</Label>
+                <Input
+                  id="minimum_order"
+                  type="number"
+                  step="0.01"
+                  value={store.minimum_order || 0}
+                  onChange={(e) => setStore(prev => prev ? { ...prev, minimum_order: parseFloat(e.target.value) || 0 } : null)}
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="delivery_fee">Taxa de Entrega (R$)</Label>
-              <Input
-                id="delivery_fee"
-                type="number"
-                step="0.01"
-                value={store.delivery_fee || 0}
-                onChange={(e) => setStore(prev => prev ? { ...prev, delivery_fee: parseFloat(e.target.value) || 0 } : null)}
-              />
-            </div>
+            {/* Informações de retirada agrupadas */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="pickup_address">Endereço para Retirada</Label>
+                <Input
+                  id="pickup_address"
+                  value={store.pickup_address || ''}
+                  onChange={(e) => setStore(prev => prev ? { ...prev, pickup_address: e.target.value } : null)}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="minimum_order">Pedido Mínimo (R$)</Label>
-              <Input
-                id="minimum_order"
-                type="number"
-                step="0.01"
-                value={store.minimum_order || 0}
-                onChange={(e) => setStore(prev => prev ? { ...prev, minimum_order: parseFloat(e.target.value) || 0 } : null)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="pickup_address">Endereço para Retirada</Label>
-              <Input
-                id="pickup_address"
-                value={store.pickup_address || ''}
-                onChange={(e) => setStore(prev => prev ? { ...prev, pickup_address: e.target.value } : null)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="pickup_instructions">Instruções para Retirada</Label>
-              <Textarea
-                id="pickup_instructions"
-                value={store.pickup_instructions || ''}
-                onChange={(e) => setStore(prev => prev ? { ...prev, pickup_instructions: e.target.value } : null)}
-                rows={3}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="pickup_instructions">Instruções para Retirada</Label>
+                <Textarea
+                  id="pickup_instructions"
+                  value={store.pickup_instructions || ''}
+                  onChange={(e) => setStore(prev => prev ? { ...prev, pickup_instructions: e.target.value } : null)}
+                  rows={2}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Métodos de Pagamento */}
-        <Card>
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle>Métodos de Pagamento</CardTitle>
           </CardHeader>
@@ -464,13 +478,29 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onSave, storeId }) => {
         </Card>
       </div>
 
-      <div className="flex justify-end pt-6">
-        <Button onClick={handleSave} disabled={loading} size="lg">
-          {loading ? 'Salvando...' : 'Salvar Todas as Configurações'}
-        </Button>
-      </div>
+      {/* Configurações Avançadas de Agendamento em card separado */}
+      {store.allow_scheduling && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Configurações Avançadas de Agendamento</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SchedulingSettings 
+              storeId={storeId}
+              onSave={() => {
+                toast({
+                  title: "Sucesso!",
+                  description: "Configurações de horário salvas com sucesso."
+                });
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Remover o botão duplicado do final */}
     </div>
-  );
+);
 };
 
 export default SettingsPage;
