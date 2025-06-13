@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,14 +25,28 @@ const ProductViewModal: React.FC<ProductViewModalProps> = ({
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [images, setImages] = useState<ProductImage[]>(
-    product.images || (product.image_url ? [{
-      url: product.image_url,
-      is_primary: true,
-      order: 0
-    }] : [])
+    product.images && product.images.length > 0
+      ? product.images
+      : (product.image_url ? [{
+          url: product.image_url,
+          is_primary: true,
+          order: 0
+        }] : [])
   );
   
   const category = categories.find(cat => cat.id === product.category_id);
+
+  useEffect(() => {
+    setImages(
+      product.images && product.images.length > 0
+        ? product.images
+        : (product.image_url ? [{
+            url: product.image_url,
+            is_primary: true,
+            order: 0
+          }] : [])
+    );
+  }, [product]);
 
   const handleEdit = () => {
     onEdit(product);

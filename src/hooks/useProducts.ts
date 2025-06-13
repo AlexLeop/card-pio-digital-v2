@@ -113,6 +113,9 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         image_url: productData.images && productData.images.length > 0 ? productData.images[0].url : productData.image_url
       };
 
+      // Remover a propriedade images antes de inserir no banco
+      delete dataForDB.images;
+
       // Inserir produto
       const { data, error } = await supabase
         .from('products')
