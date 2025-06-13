@@ -88,7 +88,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
           ...img,
           url: getValidImageUrl(img.url)
         }))
-        .sort((a, b) => a.display_order - b.display_order);
+        .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
       
       images.push(...additionalImages);
     }
@@ -102,10 +102,15 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
       });
     }
     
-    // Remove duplicates based on URL
-    const uniqueImages = images.filter((img, index, self) => 
-      index === self.findIndex(i => i.url === img.url)
-    );
+    // Remove duplicates based on URL and ensure display_order is set
+    const uniqueImages = images
+      .filter((img, index, self) => 
+        index === self.findIndex(i => i.url === img.url)
+      )
+      .map(img => ({
+        ...img,
+        display_order: img.display_order || 0
+      }));
     
     return uniqueImages;
   }, [product]);
