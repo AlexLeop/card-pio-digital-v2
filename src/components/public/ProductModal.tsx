@@ -625,7 +625,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                         </div>
 
                         {/* Controles de quantidade - apenas se permitido pelo lojista */}
-                        {isAddonSelected(category.id, addon.id) && addon.allow_quantity && (
+                        {isAddonSelected(category.id, addon.id) && addon.max_quantity && (
                           <div className="flex items-center space-x-2">
                             <Button
                               variant="outline"
@@ -637,12 +637,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                             <Input
                               type="number"
                               min="1"
-                              max={addon.max_quantity || 99}
+                              max={addon.max_quantity}
                               value={getAddonQuantity(category.id, addon.id)}
                               onChange={(e) => {
                                 const value = parseInt(e.target.value) || 1;
-                                const maxValue = addon.max_quantity || 99;
-                                updateAddonQuantity(category.id, addon.id, Math.min(maxValue, Math.max(1, value)));
+                                updateAddonQuantity(category.id, addon.id, Math.min(addon.max_quantity || 1, Math.max(1, value)));
                               }}
                               className="w-12 h-8 text-center"
                             />
@@ -650,8 +649,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                const maxValue = addon.max_quantity || 9000;
-                                updateAddonQuantity(category.id, addon.id, Math.min(maxValue, getAddonQuantity(category.id, addon.id) + 1));
+                                updateAddonQuantity(category.id, addon.id, Math.min(addon.max_quantity || 1, getAddonQuantity(category.id, addon.id) + 1));
                               }}
                             >
                               <Plus className="h-4 w-4" />
