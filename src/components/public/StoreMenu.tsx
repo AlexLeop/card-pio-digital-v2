@@ -187,8 +187,8 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
   }, [categories, stockManagedProducts, checkAvailability]);
 
   // Função para adicionar ao carrinho com validações
-  const handleAddToCart = (product: Product, quantity: number, addons: ProductAddon[], notes?: string, scheduledFor?: string) => {
-    if (!product || !product.id) {
+  const handleAddToCart = (cartItem: CartItem) => {
+    if (!cartItem || !cartItem.product) {
       toast({
         title: "Erro",
         description: "Produto inválido",
@@ -197,36 +197,19 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
       return;
     }
 
-    if (quantity <= 0) {
-      toast({
-        title: "Erro",
-        description: "Quantidade inválida",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const cartItem: CartItem = {
-      product,
-      quantity,
-      addons: Array.isArray(addons) ? addons : [],
-      notes: notes?.trim() || '',
-      scheduled_for: scheduledFor
-    };
-
     setCart(prev => {
       if (!Array.isArray(prev)) return [cartItem];
       
       const existingIndex = prev.findIndex(item => 
-        item.product.id === product.id && 
+        item.product.id === cartItem.product.id && 
         JSON.stringify(item.addons) === JSON.stringify(cartItem.addons) &&
-        item.notes === notes &&
-        item.scheduled_for === scheduledFor
+        item.notes === cartItem.notes &&
+        item.scheduled_for === cartItem.scheduled_for
       );
 
       if (existingIndex >= 0) {
         const updated = [...prev];
-        updated[existingIndex].quantity += quantity;
+        updated[existingIndex].quantity += cartItem.quantity;
         return updated;
       } else {
         return [...prev, cartItem];
@@ -235,7 +218,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
 
     toast({
       title: "Produto adicionado!",
-      description: `${product.name} foi adicionado ao carrinho.`
+      description: `${cartItem.product.name} foi adicionado ao carrinho.`
     });
   };
 

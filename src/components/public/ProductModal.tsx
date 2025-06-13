@@ -334,7 +334,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
       product,
       quantity,
       addons: selectedAddons,
-      notes: notes?.trim() || ''
+      notes: notes?.trim() || '',
+      scheduled_for: undefined
     };
 
     onAddToCart(cartItem);
