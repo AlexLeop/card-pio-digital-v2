@@ -52,7 +52,7 @@ const CartModal: React.FC<CartModalProps> = ({
 
   const canProceed = () => {
     if (!Array.isArray(cart) || cart.length === 0) return false;
-    const minimumOrder = store.minimum_order || 0;
+    const minimumOrder = store?.minimum_order || 0;
     return cartTotal >= minimumOrder;
   };
 
@@ -124,6 +124,7 @@ const CartModal: React.FC<CartModalProps> = ({
                     {item.addons.map((addon, addonIndex) => (
                       <p key={addonIndex} className="text-xs text-gray-500">
                         + {addon.name} (R$ {addon.price.toFixed(2)})
+                        {addon.quantity && addon.quantity > 1 && ` x${addon.quantity}`}
                       </p>
                     ))}
                   </div>
@@ -204,7 +205,7 @@ const CartModal: React.FC<CartModalProps> = ({
             </div>
 
             {/* Mostrar informação do pedido mínimo */}
-            {store.minimum_order && store.minimum_order > 0 && (
+            {store?.minimum_order && store.minimum_order > 0 && (
               <div className="text-xs text-gray-600 mb-3">
                 {cartTotal < store.minimum_order ? (
                   <div className="text-red-600">
@@ -237,7 +238,7 @@ const CartModal: React.FC<CartModalProps> = ({
                     : 'bg-primary hover:bg-primary/90'
                 }`}
               >
-                {!canProceed() && store.minimum_order && cartTotal < store.minimum_order
+                {!canProceed() && store?.minimum_order && cartTotal < store.minimum_order
                   ? `Faltam R$ ${(store.minimum_order - cartTotal).toFixed(2)}`
                   : 'Finalizar Pedido'
                 }

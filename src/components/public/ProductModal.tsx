@@ -33,7 +33,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   }
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedAddons, setSelectedAddons] = useState<ProductAddon[]>([]);
+  const [selectedAddons, setSelectedAddons] = useState<{ [key: string]: ProductAddon[] }>({});
   const [productNotes, setProductNotes] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
@@ -209,42 +209,65 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   useEffect(() => {
     if (product && productAddons) {
       // Reset selected addons when product changes
-      setSelectedAddons([]);
+      setSelectedAddons({});
       setQuantity(1);
       setProductNotes('');
       setValidationErrors([]);
     }
   }, [product, productAddons]);
 
-  const handleAddonChange = (addon: ProductAddon) => {
-    if (selectedAddons.some(a => a.id === addon.id)) {
-      setSelectedAddons(prev => prev.filter(a => a.id !== addon.id));
-    } else {
-      setSelectedAddons(prev => [...prev, addon]);
-    }
-  };
+  const handleAddonChange = (categoryId: string, addon: ProductAddon, isSelected: boolean) => {
+    const category = productAddons?.find(cat => cat.id === categoryId);
+    if (!category) return;
 
-  const validateSelection = (): boolean => {
-    const errors: string[] = [];
-
-    productAddons?.forEach(category => {
-      const selectedInCategory = selectedAddons.filter(addon => addon.category === category.name);
+    setSelectedAddons(prev => {
+      const currentAddons = prev[categoryId] || [];
       
-      if (category.is_required && selectedInCategory.length === 0) {
-        errors.push(`${category.name} é obrigatório`);
-      }
-      
-      if (category.min_select && selectedInCategory.length < category.min_select) {
-        errors.push(`${category.name} requer pelo menos ${category.min_select} seleção(ões)`);
-      }
-      
-      if (category.max_select && selectedInCategory.length > category.max_select) {
-        errors.push(`${category.name} permite no máximo ${category.max_select} seleção(ões)`);
+      if (isSelected) {
+        if (category.is_multiple) {
+          // Multiple selection - add if not at max limit
+          if (category.max_select && currentAddons.length >= category.max_select) {
+            return prev;
+          }
+          return {
+            ...prev,
+            [categoryId]: [...currentAddons, { ...addon, quantity: 1 }]
+          };
+        } else {
+          // Single selection - replace
+          return {
+            ...prev,
+            [categoryId]: [{ ...addon, quantity: 1 }]
+          };
+        }
+      } else {
+        // Remove addon
+        return {
+          ...prev,
+          [categoryId]: currentAddons.filter(a => a.id !== addon.id)
+        };
       }
     });
+  };
 
-    setValidationErrors(errors);
-    return errors.length === 0;
+  const updateAddonQuantity = (categoryId: string, addonId: string, newQuantity: number) => {
+    if (newQuantity < 1) return;
+
+    setSelectedAddons(prev => ({
+      ...prev,
+      [categoryId]: (prev[categoryId] || []).map(addon =>
+        addon.id === addonId ? { ...addon, quantity: newQuantity } : addon
+      )
+    }));
+  };
+
+  const isAddonSelected = (categoryId: string, addonId: string) => {
+    return selectedAddons[categoryId]?.some(addon => addon.id === addonId) || false;
+  };
+
+  const getAddonQuantity = (categoryId: string, addonId: string) => {
+    const addon = selectedAddons[categoryId]?.find(addon => addon.id === addonId);
+    return addon?.quantity || 0;
   };
 
   const handleAddToCart = () => {
@@ -262,7 +285,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
 
     // Validar adicionais obrigatórios
     const requiredAddons = product.addons?.filter(addon => addon.required) || [];
-    const selectedRequiredAddons = selectedAddons.filter(addon => 
+    const selectedRequiredAddons = Object.values(selectedAddons).flat().filter(addon => 
       requiredAddons.some(req => req.id === addon.id)
     );
 
@@ -279,7 +302,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
     const cartItem: CartItem = {
       product,
       quantity,
-      addons: selectedAddons,
+      addons: Object.values(selectedAddons).flat(),
       notes: productNotes?.trim() || '',
       scheduled_for: undefined
     };
@@ -289,7 +312,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   };
 
   // Calculate pricing
-  const allSelectedAddons = selectedAddons;
+  const allSelectedAddons = Object.values(selectedAddons).flat();
   const pricing: PricingCalculation = calculatePricing(product!, quantity, allSelectedAddons);
 
   const productPrice = product?.sale_price || product?.price;
@@ -535,80 +558,65 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
             <div className="space-y-6">
               <h3 className="text-lg font-semibold">Personalize seu pedido</h3>
               
-              {productAddons.map((category) => (
-                <div key={category.id} className="border rounded-lg p-4 space-y-4">
+              {Object.entries(addonsByCategory).map(([category, addons]) => (
+                <div key={category} className="border rounded-lg p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">{category.name}</h4>
-                      {category.description && (
-                        <p className="text-sm text-gray-600">{category.description}</p>
-                      )}
-                    </div>
-                    <div className="flex space-x-2">
-                      {category.is_required && (
-                        <Badge variant="destructive" className="text-xs">
-                          Obrigatório
-                        </Badge>
-                      )}
-                      {category.is_multiple && (
-                        <Badge variant="secondary" className="text-xs">
-                          Múltipla escolha
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
+                      <h4 className="font-medium">{category}</h4>
+                      {addons.map((addon) => (
+                        <div key={addon.id} className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3 flex-1">
+                            <Checkbox
+                              id={`addon-${addon.id}`}
+                              checked={isAddonSelected(category, addon.id)}
+                              onCheckedChange={(checked) => handleAddonChange(category, addon, checked as boolean)}
+                            />
+                            
+                            <div className="flex-1">
+                              <Label htmlFor={`addon-${addon.id}`} className="font-medium cursor-pointer">
+                                {addon.name}
+                              </Label>
+                              {addon.description && (
+                                <p className="text-sm text-gray-600">{addon.description}</p>
+                              )}
+                            </div>
+                          </div>
 
-                  {(category.min_select || category.max_select) && (
-                    <p className="text-xs text-gray-500">
-                      {category.min_select && category.max_select ? (
-                        `Selecione ${category.min_select} a ${category.max_select} opções`
-                      ) : category.min_select ? (
-                        `Mínimo ${category.min_select} opções`
-                      ) : (
-                        `Máximo ${category.max_select} opções`
-                      )}
-                    </p>
-                  )}
-
-                  <div className="space-y-3">
-                    {category.addon_items?.map((addon) => (
-                      <div key={addon.id} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3 flex-1">
-                          <Checkbox
-                            id={`addon-${addon.id}`}
-                            checked={selectedAddons.some(a => a.id === addon.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                handleAddonChange(addon);
-                              } else {
-                                handleAddonChange(addon);
-                              }
-                            }}
-                          />
-                          
-                          <div className="flex-1">
-                            <Label htmlFor={`addon-${addon.id}`} className="font-medium cursor-pointer">
-                              {addon.name}
-                            </Label>
-                            {addon.description && (
-                              <p className="text-sm text-gray-600">{addon.description}</p>
+                          <div className="flex items-center space-x-3">
+                            <span className="font-medium text-green-600">
+                              {addon.price > 0 ? `+R$ ${addon.price.toFixed(2)}` : ''}
+                            </span>
+                            {addon.max_quantity && (
+                              <span className="text-xs text-gray-500">
+                                Máx: {addon.max_quantity}
+                              </span>
                             )}
                           </div>
                         </div>
-
-                        <div className="flex items-center space-x-3">
-                          <span className="font-medium text-green-600">
-                            {addon.price > 0 ? `+R$ ${addon.price.toFixed(2)}` : ''}
-                          </span>
-                          {addon.max_quantity && (
-                            <span className="text-xs text-gray-500">
-                              Máx: {addon.max_quantity}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
+
+                  {/* Controles de quantidade */}
+                  {isAddonSelected(category, addon.id) && (
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateAddonQuantity(category, addon.id, Math.max(1, getAddonQuantity(category, addon.id) - 1))}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center">{getAddonQuantity(category, addon.id)}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateAddonQuantity(category, addon.id, getAddonQuantity(category, addon.id) + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
