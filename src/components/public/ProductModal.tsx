@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -82,26 +81,25 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
     
     const images: ProductImage[] = [];
     
-    // Add main image if exists
-    if (product.image_url) {
-      images.push({
-        url: getValidImageUrl(product.image_url),
-        is_primary: true,
-        order: 0
-      });
-    }
-    
     // Add additional images if they exist
     if (product.images && Array.isArray(product.images)) {
       const additionalImages = product.images
-        .filter(img => img.url !== product.image_url) // Avoid duplicates
         .map(img => ({
           ...img,
           url: getValidImageUrl(img.url)
         }))
-        .sort((a, b) => a.order - b.order);
+        .sort((a, b) => a.display_order - b.display_order);
       
       images.push(...additionalImages);
+    }
+    
+    // Add main image if exists and not already in the array
+    if (product.image_url && !images.some(img => img.url === product.image_url)) {
+      images.push({
+        url: getValidImageUrl(product.image_url),
+        is_primary: true,
+        display_order: 0
+      });
     }
     
     // Remove duplicates based on URL
@@ -498,18 +496,27 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                onClick={() => handleQuantityChange(Math.max(1, quantity - 1))}
                 disabled={quantity <= 1}
               >
                 <Minus className="h-4 w-4" />
               </Button>
-              <span className="font-medium text-lg min-w-[3rem] text-center">
-                {quantity}
-              </span>
+              <Input
+                type="number"
+                min="1"
+                max={maxQuantity}
+                value={quantity}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 1;
+                  handleQuantityChange(value);
+                }}
+                className="w-16 text-center"
+              />
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setQuantity(quantity + 1)}
+                onClick={() => handleQuantityChange(quantity + 1)}
+                disabled={quantity >= maxQuantity}
               >
                 <Plus className="h-4 w-4" />
               </Button>

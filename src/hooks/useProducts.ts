@@ -28,11 +28,13 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
           *,
           categories(
             id,
-            name
+            name,
+            sort_order
           ),
-          product_images(*) // Adicionar esta linha para buscar as imagens
+          product_images(*)
         `)
         .eq('store_id', storeId)
+        .order('categories(sort_order)', { ascending: true })
         .order('name', { ascending: true });
   
       if (categoryId) {
