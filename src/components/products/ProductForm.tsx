@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,26 +32,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, st
     name: product?.name || '',
     description: product?.description || '',
     price: product?.price || 0,
-    sale_price: product?.sale_price || 0,
-    category_id: product?.category_id || '',
+    sale_price: product?.sale_price || undefined,
     image_url: product?.image_url || '',
-    images: product?.images || [],
-    is_active: product?.is_active ?? true,
-    is_featured: product?.is_featured ?? false,
-    is_available: product?.is_available ?? true,
-    stock_quantity: product?.stock_quantity || 0,
+    category_id: product?.category_id || (categories.length > 0 ? categories[0].id : ''),
+    store_id: product?.store_id || storeId,
+    is_featured: product?.is_featured || false,
+    is_available: product?.is_available !== false,
+    is_active: product?.is_active !== false,
+    has_addons: product?.has_addons || false,
+    allow_same_day_scheduling: product?.allow_same_day_scheduling || false,
+    preparation_time: product?.preparation_time || undefined,
+    daily_stock: product?.daily_stock || undefined,
+    current_stock: product?.current_stock || undefined,
+    max_included_quantity: product?.max_included_quantity || undefined,
+    excess_unit_price: product?.excess_unit_price || undefined,
     min_stock: product?.min_stock || 0,
-    daily_stock: product?.daily_stock || 0,
-    current_stock: product?.current_stock || 0,
-    track_stock: product?.track_stock ?? false,
-    preparation_time: product?.preparation_time || 15,
-    max_included_quantity: product?.max_included_quantity || 1,
-    excess_unit_price: product?.excess_unit_price || 0,
-    has_addons: product?.has_addons ?? false,
+    track_stock: product?.track_stock || false,
     ingredients: product?.ingredients || [],
     allergens: product?.allergens || [],
-    allow_same_day_scheduling: product?.allow_same_day_scheduling ?? false,
-    store_id: product?.store_id || ''
+    images: product?.images || []
   });
   
   // Mover o hook useAddonCategories para depois da inicialização do formData
@@ -548,43 +546,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, st
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="daily_stock">Estoque Diário</Label>
-                        <Input
-                          id="daily_stock"
-                          type="number"
-                          min="0"
-                          value={formData.daily_stock}
-                          onChange={(e) => updateField('daily_stock', parseInt(e.target.value) || 0)}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Quantidade máxima que pode ser vendida por dia
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="current_stock">Estoque Atual do Dia</Label>
-                        <Input
-                          id="current_stock"
-                          type="number"
-                          min="0"
-                          value={formData.current_stock}
-                          onChange={(e) => updateField('current_stock', parseInt(e.target.value) || 0)}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Quantidade ainda disponível hoje
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
                         <Label htmlFor="stock_quantity">Estoque Total</Label>
                         <Input
                           id="stock_quantity"
                           type="number"
                           min="0"
-                          value={formData.stock_quantity}
-                          onChange={(e) => updateField('stock_quantity', parseInt(e.target.value) || 0)}
+                          value={formData.daily_stock || 0}
+                          onChange={(e) => updateField('daily_stock', parseInt(e.target.value) || 0)}
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           Estoque geral do produto

@@ -101,9 +101,12 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
     try {
       console.log('Dados recebidos em addProduct:', productData);
 
+      // Extrair selectedAddonCategories dos dados
+      const { selectedAddonCategories, ...dataWithoutAddons } = productData;
+
       // Preparar dados para o banco
       const dataForDB = {
-        ...productData,
+        ...dataWithoutAddons,
         store_id: productData.store_id,
         price: Number(productData.price),
         sale_price: productData.sale_price ? Number(productData.sale_price) : null,
@@ -181,12 +184,13 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         current_stock: dataForDB.current_stock !== undefined ? Number(dataForDB.current_stock) : null,
         max_included_quantity: dataForDB.max_included_quantity !== undefined ? Number(dataForDB.max_included_quantity) : null,
         excess_unit_price: dataForDB.excess_unit_price !== undefined ? Number(dataForDB.excess_unit_price) : null,
+        min_stock: dataForDB.min_stock !== undefined ? Number(dataForDB.min_stock) : null,
+        track_stock: dataForDB.track_stock !== undefined ? Boolean(dataForDB.track_stock) : null,
         has_addons: selectedAddonCategories ? selectedAddonCategories.length > 0 : dataForDB.has_addons,
         // Atualizar image_url com a imagem principal do array
         image_url: dataForDB.images && dataForDB.images.length > 0 ? 
           (dataForDB.images.find(img => img.is_primary)?.url || dataForDB.images[0].url) : 
-          dataForDB.image_url,
-        images: undefined // Remove images property for DB update
+          dataForDB.image_url
       };
   
       // Remover campos undefined
@@ -196,9 +200,12 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         }
       });
   
-      console.log('Dados sendo enviados para atualização:', finalData);
+      // Remover a propriedade images antes de atualizar no banco
+      delete finalData.images;
   
-      // Após a atualização do produto principal
+      console.log('Dados preparados para atualização:', finalData);
+  
+      // Atualizar produto
       const { data, error } = await supabase
         .from('products')
         .update(finalData)
@@ -207,65 +214,44 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         .single();
   
       if (error) {
-        console.error('Erro do Supabase ao atualizar produto:', error);
-        throw new Error(`Erro ao atualizar produto: ${error.message}`);
+        console.error('Erro ao atualizar produto:', error);
+        throw error;
       }
   
-      // ADICIONAR: Atualizar imagens se fornecidas
-      if (productData.images !== undefined) {
-        // Remover imagens existentes
-        await supabase
-          .from('product_images')
-          .delete()
-          .eq('product_id', productId);
-        
-        // Inserir novas imagens se existirem
-        if (productData.images && productData.images.length > 0) {
-          const productImages = productData.images.map((image, index) => ({
-            product_id: productId,
-            url: image.url,
-            is_primary: image.is_primary,
-            order: image.order || index
-          }));
-  
-          const { error: imagesError } = await supabase
-            .from('product_images')
-            .insert(productImages);
-  
-          if (imagesError) {
-            console.error('Erro ao atualizar imagens do produto:', imagesError);
-          }
-        }
-      }
-  
-      console.log('Produto atualizado com sucesso:', data);
-      
-      // Atualizar associações de categorias de addon se fornecidas
+      // Se houver categorias de addon selecionadas, atualizar as associações
       if (selectedAddonCategories !== undefined) {
         console.log('Atualizando associações de addon categories:', selectedAddonCategories);
         
-        // Remover associações existentes
-        await supabase
+        // Primeiro, remover todas as associações existentes
+        const { error: deleteError } = await supabase
           .from('product_addon_categories')
           .delete()
           .eq('product_id', productId);
-        
-        // Adicionar novas associações
+  
+        if (deleteError) {
+          console.error('Erro ao remover associações antigas:', deleteError);
+          throw deleteError;
+        }
+  
+        // Depois, criar novas associações
         if (selectedAddonCategories.length > 0) {
           const associations = selectedAddonCategories.map(categoryId => ({
             product_id: productId,
             addon_category_id: categoryId
           }));
-          
-          const { error: associationError } = await supabase
+  
+          const { error: insertError } = await supabase
             .from('product_addon_categories')
             .insert(associations);
-            
-          if (associationError) {
-            console.error('Erro ao atualizar associações de addon:', associationError);
+  
+          if (insertError) {
+            console.error('Erro ao criar novas associações:', insertError);
+            throw insertError;
           }
         }
       }
+  
+      console.log('Produto atualizado com sucesso:', data);
       
       // Mapear dados retornados
       const mappedProduct: Product = {
