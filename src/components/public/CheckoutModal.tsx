@@ -52,7 +52,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
 
   // Validação
-  const { validate, errors, clearErrors } = useValidation();
+  const { validate, errors, clearErrors, setErrors } = useValidation();
 
   // Customer data
   const [customerData, setCustomerData] = useState<CheckoutCustomerData>({
@@ -81,7 +81,11 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   // Calculate totals using the unified service
   const deliveryFee = orderData.delivery_type === 'delivery' ? (store.delivery_fee || 0) : 0;
-  const totals = calculateOrderTotal(cart, deliveryFee);
+  const totals = useMemo(() => {
+    if (!Array.isArray(cart) || cart.length === 0) return { subtotal: 0, total: 0 };
+    return calculateOrderTotal(cart, deliveryFee);
+  }, [cart, deliveryFee]);
+
   const subtotal = totals.subtotal;
   const total = totals.total;
 
@@ -136,56 +140,30 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
     reduceStock
   } = useStockManager(products);
 
-  // Adicionar validação de estoque na função validateStep
-  const validateStep = async (): Promise<boolean> => {
+  const validateStep = async () => {
     clearErrors();
-    
+
     if (step === 'info') {
       // Validar dados do cliente
       const customerValidation = await validate(checkoutCustomerSchema, customerData);
-      if (!customerValidation.success) {
+      if (!customerValidation.isValid) {
+        setErrors(customerValidation.errors);
         return false;
       }
 
       // Validar endereço se for delivery
       if (orderData.delivery_type === 'delivery') {
         const addressValidation = await validate(checkoutAddressSchema, addressData);
-        if (!addressValidation.success) {
+        if (!addressValidation.isValid) {
+          setErrors(addressValidation.errors);
           return false;
         }
       }
 
-      // Validar se o carrinho não está vazio
-      if (!cart || cart.length === 0) {
-        toast({
-          title: "Carrinho vazio",
-          description: "Adicione itens ao carrinho antes de finalizar o pedido.",
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      // Validar estoque disponível para cada item do carrinho
-      const stockValidations = await Promise.all(
-        cart.map(async (item) => {
-          if (item.product.daily_stock) {
-            const availableStock = await getAvailableStock(item.product.id);
-            return { item, availableStock };
-          }
-          return { item, availableStock: Infinity };
-        })
-      );
-
-      const invalidStock = stockValidations.find(
-        ({ item, availableStock }) => availableStock < item.quantity
-      );
-
-      if (invalidStock) {
-        toast({
-          title: "Estoque insuficiente",
-          description: `${invalidStock.item.product.name}: apenas ${invalidStock.availableStock} unidades disponíveis.`,
-          variant: "destructive"
-        });
+      // Validar dados do pedido
+      const orderValidation = await validate(checkoutFormSchema, orderData);
+      if (!orderValidation.isValid) {
+        setErrors(orderValidation.errors);
         return false;
       }
 
@@ -237,32 +215,23 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
       setCurrentOrderId(result.order.id);
 
+      // Se for pagamento em dinheiro, finalizar direto
       if (paymentMethod === 'cash') {
-        // Para pagamento em dinheiro, reduzir estoque imediatamente
-        cart.forEach(item => {
-          if (item.product.daily_stock) {
-            reduceStock(item.product.id, item.quantity);
-          }
-        });
-
         toast({
-          title: "Pedido realizado com sucesso!",
-          description: "Redirecionando para finalização..."
+          title: "Pedido realizado!",
+          description: "Seu pedido foi processado com sucesso."
         });
-        
-        setTimeout(() => {
-          window.location.href = `/pedido/${result.order.id}`;
-        }, 1500);
-        
         onSuccess();
-      } else {
-        // Para cartão ou PIX, mostrar Mercado Pago
-        setShowMercadoPago(true);
+        return;
       }
-    } catch (error: any) {
+
+      // Se for cartão ou PIX, mostrar Mercado Pago
+      setShowMercadoPago(true);
+    } catch (error) {
+      console.error('Error creating order:', error);
       toast({
-        title: "Erro ao processar pedido",
-        description: error.message || "Tente novamente mais tarde.",
+        title: "Erro ao criar pedido",
+        description: "Ocorreu um erro ao processar seu pedido. Tente novamente.",
         variant: "destructive"
       });
     } finally {

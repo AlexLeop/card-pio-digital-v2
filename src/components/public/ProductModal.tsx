@@ -315,15 +315,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
     }
 
     // Validar adicionais obrigatórios
-    const requiredAddons = Array.isArray(product.addons) 
-      ? product.addons.filter(addon => addon.required) 
-      : [];
-
-    const selectedRequiredAddons = Array.isArray(selectedAddons)
-      ? selectedAddons.filter(addon => 
-          requiredAddons.some(req => req.id === addon.id)
-        )
-      : [];
+    const requiredAddons = product.addons?.filter(addon => addon.required) || [];
+    const selectedRequiredAddons = selectedAddons.filter(addon => 
+      requiredAddons.some(req => req.id === addon.id)
+    );
 
     if (requiredAddons.length > 0 && selectedRequiredAddons.length === 0) {
       toast({
@@ -338,7 +333,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
     const cartItem: CartItem = {
       product,
       quantity,
-      addons: Array.isArray(selectedAddons) ? selectedAddons : [],
+      addons: selectedAddons,
       notes: notes?.trim() || ''
     };
 
@@ -363,13 +358,13 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
 
   // Filtrar adicionais disponíveis
   const availableAddons = useMemo(() => {
-    if (!Array.isArray(product?.addons)) return [];
+    if (!product?.addons) return [];
     return product.addons.filter(addon => addon.is_available);
   }, [product?.addons]);
 
   // Agrupar adicionais por categoria
   const addonsByCategory = useMemo(() => {
-    if (!Array.isArray(availableAddons)) return {};
+    if (!availableAddons) return {};
     
     return availableAddons.reduce((acc, addon) => {
       const category = addon.category || 'Sem categoria';
