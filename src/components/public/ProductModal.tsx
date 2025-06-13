@@ -639,11 +639,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                               inputMode="numeric"
                               pattern="[0-9]*"
                               min="1"
-                              max={category.max_select}
                               value={getAddonQuantity(category.id, addon.id)}
                               onChange={(e) => {
                                 const value = parseInt(e.target.value.replace(/\D/g, '')) || 1;
-                                updateAddonQuantity(category.id, addon.id, Math.min(category.max_select || 1, Math.max(1, value)));
+                                updateAddonQuantity(category.id, addon.id, Math.max(1, value));
                               }}
                               className="w-12 h-8 text-center"
                             />
@@ -651,7 +650,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                updateAddonQuantity(category.id, addon.id, Math.min(category.max_select || 1, getAddonQuantity(category.id, addon.id) + 1));
+                                updateAddonQuantity(category.id, addon.id, getAddonQuantity(category.id, addon.id) + 1);
                               }}
                             >
                               <Plus className="h-4 w-4" />
