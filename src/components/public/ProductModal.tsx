@@ -624,8 +624,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                           )}
                         </div>
 
-                        {/* Controles de quantidade */}
-                        {isAddonSelected(category.id, addon.id) && (
+                        {/* Controles de quantidade - apenas se permitido pelo lojista */}
+                        {isAddonSelected(category.id, addon.id) && addon.allow_quantity && (
                           <div className="flex items-center space-x-2">
                             <Button
                               variant="outline"
@@ -634,11 +634,25 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                             >
                               <Minus className="h-4 w-4" />
                             </Button>
-                            <span className="w-8 text-center">{getAddonQuantity(category.id, addon.id)}</span>
+                            <Input
+                              type="number"
+                              min="1"
+                              max={addon.max_quantity || 99}
+                              value={getAddonQuantity(category.id, addon.id)}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value) || 1;
+                                const maxValue = addon.max_quantity || 99;
+                                updateAddonQuantity(category.id, addon.id, Math.min(maxValue, Math.max(1, value)));
+                              }}
+                              className="w-12 h-8 text-center"
+                            />
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateAddonQuantity(category.id, addon.id, getAddonQuantity(category.id, addon.id) + 1)}
+                              onClick={() => {
+                                const maxValue = addon.max_quantity || 9000;
+                                updateAddonQuantity(category.id, addon.id, Math.min(maxValue, getAddonQuantity(category.id, addon.id) + 1));
+                              }}
                             >
                               <Plus className="h-4 w-4" />
                             </Button>
