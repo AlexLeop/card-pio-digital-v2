@@ -73,13 +73,13 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
           ...(product.image_url ? [{
             url: product.image_url,
             is_primary: true,
-            order: 0
+            display_order: 0
           }] : []),
           // Incluir imagens adicionais da tabela product_images
           ...(product.product_images || []).map((img: any) => ({
             url: img.url,
             is_primary: img.is_primary,
-            order: img.order
+            display_order: img.display_order
           }))
         ]
       }));
@@ -137,16 +137,14 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
 
       console.log('Produto inserido com sucesso:', data);
 
-      // Salvar imagens na tabela product_images
+      // Salvar imagens se existirem
       if (productData.images && productData.images.length > 0) {
         const productImages = productData.images.map((image, index) => ({
           product_id: data.id,
           url: image.url,
           is_primary: image.is_primary,
-          order: index
+          display_order: index // Usar display_order em vez de order
         }));
-
-        console.log('Preparando para salvar imagens:', productImages);
 
         const { error: imagesError } = await supabase
           .from('product_images')
@@ -156,8 +154,6 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
           console.error('Erro ao salvar imagens do produto:', imagesError);
           throw imagesError;
         }
-
-        console.log('Imagens salvas com sucesso');
       }
 
       return data;
@@ -279,7 +275,7 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         images: data.image_url ? [{
           url: data.image_url,
           is_primary: true,
-          order: 0
+          display_order: 0
         }] : []
       };
   
