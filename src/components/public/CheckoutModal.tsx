@@ -224,11 +224,14 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
         orderData: {
           delivery_type: orderData.delivery_type,
           payment_method: paymentMethod,
-          notes: orderData.notes,
+          notes: orderData.notes?.trim() || null,
           scheduled_for: orderData.scheduled_for,
           store_id: store.id
         },
-        items: cart,
+        items: cart.map(item => ({
+          ...item,
+          notes: item.notes?.trim() || null
+        })),
         deliveryFee
       });
 

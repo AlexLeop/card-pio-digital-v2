@@ -302,22 +302,42 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   };
 
   const handleAddToCart = () => {
-    // Verificar se o produto existe
-    if (!product) {
+    if (!product) return;
+
+    // Validar quantidade
+    if (quantity < 1) {
       toast({
-        title: "Erro",
-        description: "Produto não encontrado. Tente novamente.",
+        title: "Quantidade inválida",
+        description: "A quantidade deve ser maior que zero.",
         variant: "destructive"
       });
       return;
     }
 
-    if (!validateSelection()) {
+    // Validar adicionais obrigatórios
+    const requiredAddons = product.addons?.filter(addon => addon.required) || [];
+    const selectedRequiredAddons = selectedAddons.filter(addon => 
+      requiredAddons.some(req => req.id === addon.id)
+    );
+
+    if (requiredAddons.length > 0 && selectedRequiredAddons.length === 0) {
+      toast({
+        title: "Adicionais obrigatórios",
+        description: "Selecione pelo menos um adicional obrigatório.",
+        variant: "destructive"
+      });
       return;
     }
 
-    const allSelectedAddons = Object.values(selectedAddons).flat();
-    onAddToCart(product, quantity, allSelectedAddons, notes || undefined);
+    // Criar item do carrinho com observações
+    const cartItem: CartItem = {
+      product,
+      quantity,
+      addons: selectedAddons,
+      notes: notes.trim() // Garantir que as observações do produto são incluídas
+    };
+
+    onAddToCart(cartItem);
     onClose();
   };
 

@@ -151,7 +151,7 @@ export const createOrder = async (params: CreateOrderParams): Promise<CreateOrde
         product_id: cartItem.product.id,
         quantity: cartItem.quantity,
         price: Number(calculation.total.toFixed(2)),
-        notes: cartItem.notes || null
+        notes: cartItem.notes?.trim() || null
       };
 
       const { data: createdItem, error: itemError } = await supabase
