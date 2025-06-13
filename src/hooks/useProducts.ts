@@ -99,6 +99,8 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
 
   const addProduct = async (productData: Partial<Product>) => {
     try {
+      console.log('Dados recebidos em addProduct:', productData);
+
       // Preparar dados para o banco
       const dataForDB = {
         ...productData,
@@ -116,6 +118,8 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
       // Remover a propriedade images antes de inserir no banco
       delete dataForDB.images;
 
+      console.log('Dados preparados para inserção:', dataForDB);
+
       // Inserir produto
       const { data, error } = await supabase
         .from('products')
@@ -123,7 +127,12 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao inserir produto:', error);
+        throw error;
+      }
+
+      console.log('Produto inserido com sucesso:', data);
 
       // Salvar imagens na tabela product_images
       if (productData.images && productData.images.length > 0) {
@@ -134,6 +143,8 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
           order: index
         }));
 
+        console.log('Preparando para salvar imagens:', productImages);
+
         const { error: imagesError } = await supabase
           .from('product_images')
           .insert(productImages);
@@ -142,6 +153,8 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
           console.error('Erro ao salvar imagens do produto:', imagesError);
           throw imagesError;
         }
+
+        console.log('Imagens salvas com sucesso');
       }
 
       return data;
