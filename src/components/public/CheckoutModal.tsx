@@ -156,7 +156,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
       }
 
       // Validar se o carrinho não está vazio
-      if (cart.length === 0) {
+      if (!cart || cart.length === 0) {
         toast({
           title: "Carrinho vazio",
           description: "Adicione itens ao carrinho antes de finalizar o pedido.",
@@ -211,11 +211,12 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    const isValid = await validateStep();
-    if (!isValid) return;
-
-    setLoading(true);
     try {
+      const isValid = await validateStep();
+      if (!isValid) return;
+
+      setLoading(true);
+
       // Use the unified order service
       const result = await createOrder({
         customerData,
