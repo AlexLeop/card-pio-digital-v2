@@ -141,9 +141,9 @@ export const useProducts = (storeId?: string, categoryId?: string) => {
       if (productData.images && productData.images.length > 0) {
         const productImages = productData.images.map((image, index) => ({
           product_id: data.id,
-          url: image.url,
+          image_url: image.url,
           is_primary: image.is_primary,
-          display_order: index // Usar display_order em vez de order
+          display_order: index
         }));
 
         const { error: imagesError } = await supabase
