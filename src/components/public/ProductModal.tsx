@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Minus, Plus, Clock, Star, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, addDays } from 'date-fns';
-import { Product, ProductAddon, PricingCalculation, Store } from '@/types';
+import { Product, ProductAddon, PricingCalculation, Store, CartItem } from '@/types';
 import { useProductAddonsQuery } from '@/hooks/useProductAddonsQuery';
 import { calculatePricing } from '@/utils/pricingCalculator';
 import { SchedulingManager } from '@/utils/stockManager';
@@ -23,12 +23,7 @@ interface ProductModalProps {
   product: Product | null;
   store: Store;
   onClose: () => void;
-  onAddToCart: (
-    product: Product, 
-    quantity: number, 
-    addons: ProductAddon[], 
-    notes?: string
-  ) => void;
+  onAddToCart: (item: CartItem) => void;
 }
 
 const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart, onClose }) => {
@@ -38,8 +33,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   }
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedAddons, setSelectedAddons] = useState<{ [key: string]: ProductAddon[] }>({});
-  const [notes, setNotes] = useState('');
+  const [selectedAddons, setSelectedAddons] = useState<ProductAddon[]>([]);
+  const [productNotes, setProductNotes] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [editingAddonId, setEditingAddonId] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -214,75 +209,26 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   useEffect(() => {
     if (product && productAddons) {
       // Reset selected addons when product changes
-      setSelectedAddons({});
+      setSelectedAddons([]);
       setQuantity(1);
-      setNotes('');
+      setProductNotes('');
       setValidationErrors([]);
     }
   }, [product, productAddons]);
 
-  const handleAddonChange = (categoryId: string, addon: any, isSelected: boolean) => {
-    const category = productAddons?.find(cat => cat.id === categoryId);
-    if (!category) return;
-
-    // Convert AddonItem to ProductAddon with all required properties
-    const productAddon: ProductAddon = {
-      id: addon.id,
-      name: addon.name,
-      description: addon.description,
-      price: addon.price,
-      is_available: addon.is_active,
-      sort_order: 0,
-      created_at: new Date().toISOString(),
-      quantity: addon.quantity || 1
-    };
-
-    setSelectedAddons(prev => {
-      const currentAddons = prev[categoryId] || [];
-      
-      if (isSelected) {
-        if (category.is_multiple) {
-          // Multiple selection - add if not at max limit
-          if (category.max_select && currentAddons.length >= category.max_select) {
-            return prev;
-          }
-          return {
-            ...prev,
-            [categoryId]: [...currentAddons, productAddon]
-          };
-        } else {
-          // Single selection - replace
-          return {
-            ...prev,
-            [categoryId]: [productAddon]
-          };
-        }
-      } else {
-        // Remove addon
-        return {
-          ...prev,
-          [categoryId]: currentAddons.filter(a => a.id !== addon.id)
-        };
-      }
-    });
-  };
-
-  const updateAddonQuantity = (categoryId: string, addonId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-
-    setSelectedAddons(prev => ({
-      ...prev,
-      [categoryId]: (prev[categoryId] || []).map(addon =>
-        addon.id === addonId ? { ...addon, quantity: newQuantity } : addon
-      )
-    }));
+  const handleAddonChange = (addon: ProductAddon) => {
+    if (selectedAddons.some(a => a.id === addon.id)) {
+      setSelectedAddons(prev => prev.filter(a => a.id !== addon.id));
+    } else {
+      setSelectedAddons(prev => [...prev, addon]);
+    }
   };
 
   const validateSelection = (): boolean => {
     const errors: string[] = [];
 
     productAddons?.forEach(category => {
-      const selectedInCategory = selectedAddons[category.id] || [];
+      const selectedInCategory = selectedAddons.filter(addon => addon.category === category.name);
       
       if (category.is_required && selectedInCategory.length === 0) {
         errors.push(`${category.name} é obrigatório`);
@@ -334,7 +280,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
       product,
       quantity,
       addons: selectedAddons,
-      notes: notes?.trim() || '',
+      notes: productNotes?.trim() || '',
       scheduled_for: undefined
     };
 
@@ -342,17 +288,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
     onClose();
   };
 
-  const isAddonSelected = (categoryId: string, addonId: string) => {
-    return selectedAddons[categoryId]?.some(addon => addon.id === addonId) || false;
-  };
-
-  const getAddonQuantity = (categoryId: string, addonId: string) => {
-    const addon = selectedAddons[categoryId]?.find(addon => addon.id === addonId);
-    return addon?.quantity || 0;
-  };
-
   // Calculate pricing
-  const allSelectedAddons = Object.values(selectedAddons).flat();
+  const allSelectedAddons = selectedAddons;
   const pricing: PricingCalculation = calculatePricing(product!, quantity, allSelectedAddons);
 
   const productPrice = product?.sale_price || product?.price;
@@ -637,49 +574,20 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                     {category.addon_items?.map((addon) => (
                       <div key={addon.id} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3 flex-1">
-                          {category.is_multiple ? (
-                            <Checkbox
-                              checked={isAddonSelected(category.id, addon.id)}
-                              onCheckedChange={(checked) =>
-                                handleAddonChange(category.id, addon, checked as boolean)
+                          <Checkbox
+                            id={`addon-${addon.id}`}
+                            checked={selectedAddons.some(a => a.id === addon.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                handleAddonChange(addon);
+                              } else {
+                                handleAddonChange(addon);
                               }
-                            />
-                          ) : (
-                            <RadioGroup
-                              value={selectedAddons[category.id]?.[0]?.id || ''}
-                              onValueChange={(value) => {
-                                // Clear current selection and add new one
-                                if (value) {
-                                  const productAddon: ProductAddon = {
-                                    id: addon.id,
-                                    name: addon.name,
-                                    description: addon.description,
-                                    price: addon.price,
-                                    is_available: addon.is_active,
-                                    sort_order: 0,
-                                    created_at: new Date().toISOString(),
-                                    quantity: 1
-                                  };
-                                  setSelectedAddons(prev => ({
-                                    ...prev,
-                                    [category.id]: [productAddon]
-                                  }));
-                                } else {
-                                  setSelectedAddons(prev => ({
-                                    ...prev,
-                                    [category.id]: []
-                                  }));
-                                }
-                              }}
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value={addon.id} id={addon.id} />
-                              </div>
-                            </RadioGroup>
-                          )}
+                            }}
+                          />
                           
                           <div className="flex-1">
-                            <Label htmlFor={addon.id} className="font-medium cursor-pointer">
+                            <Label htmlFor={`addon-${addon.id}`} className="font-medium cursor-pointer">
                               {addon.name}
                             </Label>
                             {addon.description && (
@@ -689,65 +597,14 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                         </div>
 
                         <div className="flex items-center space-x-3">
-                          {isAddonSelected(category.id, addon.id) && category.is_multiple && (
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateAddonQuantity(category.id, addon.id, Math.max(0, getAddonQuantity(category.id, addon.id) - 1))}
-                              >
-                                -
-                              </Button>
-                              
-                              {editingAddonId === addon.id ? (
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={getAddonQuantity(category.id, addon.id)}
-                                  onChange={(e) => {
-                                    const value = parseInt(e.target.value) || 0;
-                                    updateAddonQuantity(category.id, addon.id, Math.max(0, value));
-                                  }}
-                                  onBlur={() => setEditingAddonId(null)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      setEditingAddonId(null);
-                                    }
-                                  }}
-                                  className="w-16 text-center"
-                                  autoFocus
-                                />
-                              ) : (
-                                <div 
-                                  className="w-16 h-9 flex items-center justify-center border border-gray-300 rounded cursor-pointer hover:bg-gray-50 transition-colors"
-                                  onClick={() => setEditingAddonId(addon.id)}
-                                >
-                                  <span className="text-sm font-medium">
-                                    {getAddonQuantity(category.id, addon.id)}
-                                  </span>
-                                </div>
-                              )}
-                              
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateAddonQuantity(category.id, addon.id, getAddonQuantity(category.id, addon.id) + 1)}
-                              >
-                                +
-                              </Button>
-                            </div>
-                          )}
-                          
-                          <div className="flex items-center space-x-3">
-                            <span className="font-medium text-green-600">
-                              {addon.price > 0 ? `+R$ ${addon.price.toFixed(2)}` : ''}
+                          <span className="font-medium text-green-600">
+                            {addon.price > 0 ? `+R$ ${addon.price.toFixed(2)}` : ''}
+                          </span>
+                          {addon.max_quantity && (
+                            <span className="text-xs text-gray-500">
+                              Máx: {addon.max_quantity}
                             </span>
-                            {addon.max_quantity && (
-                              <span className="text-xs text-gray-500">
-                                Máx: {addon.max_quantity}
-                              </span>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -775,8 +632,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
             <Textarea
               id="notes"
               placeholder="Alguma observação especial para este item?"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={productNotes}
+              onChange={(e) => setProductNotes(e.target.value)}
               className="min-h-[80px]"
             />
           </div>

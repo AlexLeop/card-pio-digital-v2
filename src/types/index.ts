@@ -230,10 +230,23 @@ export interface OrderItemAddon {
 }
 
 // ===== CART =====
+export interface ProductAddon {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  is_available: boolean;
+  category?: string;
+  required?: boolean;
+  quantity?: number;
+  sort_order?: number;
+  created_at?: string;
+}
+
 export interface CartItem {
   product: Product;
   quantity: number;
-  addons: AddonItem[];
+  addons: ProductAddon[];
   notes?: string;
   scheduled_for?: string;
 }

@@ -187,59 +187,60 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
   }, [categories, stockManagedProducts, checkAvailability]);
 
   // Função para adicionar ao carrinho com validações
-  const handleAddToCart = (cartItem: CartItem) => {
-    if (!cartItem || !cartItem.product) {
-      toast({
-        title: "Erro",
-        description: "Produto inválido",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleAddToCart = (item: CartItem) => {
+    if (!item || !item.product) return;
 
-    setCart(prev => {
-      if (!Array.isArray(prev)) return [cartItem];
-      
-      const existingIndex = prev.findIndex(item => 
-        item.product.id === cartItem.product.id && 
-        JSON.stringify(item.addons) === JSON.stringify(cartItem.addons) &&
-        item.notes === cartItem.notes &&
-        item.scheduled_for === cartItem.scheduled_for
+    setCart(prevCart => {
+      // Verificar se o carrinho é um array
+      if (!Array.isArray(prevCart)) {
+        return [item];
+      }
+
+      // Verificar se o produto já existe no carrinho
+      const existingItemIndex = prevCart.findIndex(
+        cartItem => cartItem.product.id === item.product.id
       );
 
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex].quantity += cartItem.quantity;
-        return updated;
+      if (existingItemIndex >= 0) {
+        // Atualizar item existente
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex] = {
+          ...updatedCart[existingItemIndex],
+          quantity: updatedCart[existingItemIndex].quantity + item.quantity
+        };
+        return updatedCart;
       } else {
-        return [...prev, cartItem];
+        // Adicionar novo item
+        return [...prevCart, item];
       }
-    });
-
-    toast({
-      title: "Produto adicionado!",
-      description: `${cartItem.product.name} foi adicionado ao carrinho.`
     });
   };
 
   // Função para atualizar item do carrinho com validações
-  const updateCartItem = (index: number, updates: Partial<CartItem>) => {
-    setCart(prev => {
-      if (!Array.isArray(prev)) return prev;
-      return prev.map((item, i) => i === index ? { ...item, ...updates } : item);
+  const handleUpdateCartItem = (index: number, updates: Partial<CartItem>) => {
+    setCart(prevCart => {
+      if (!Array.isArray(prevCart)) return prevCart;
+
+      const updatedCart = [...prevCart];
+      updatedCart[index] = {
+        ...updatedCart[index],
+        ...updates
+      };
+      return updatedCart;
     });
   };
 
   // Função para remover item do carrinho com validações
-  const removeCartItem = (index: number) => {
-    setCart(prev => {
-      if (!Array.isArray(prev)) return [];
-      return prev.filter((_, i) => i !== index);
+  const handleRemoveCartItem = (index: number) => {
+    setCart(prevCart => {
+      if (!Array.isArray(prevCart)) return prevCart;
+
+      return prevCart.filter((_, i) => i !== index);
     });
   };
 
   // Função para limpar carrinho com validações
-  const clearCart = () => {
+  const handleClearCart = () => {
     setCart([]);
   };
 
@@ -258,7 +259,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
 
   // Função para finalizar pedido com validações
   const handleSuccessfulOrder = () => {
-    clearCart();
+    handleClearCart();
     setShowCheckout(false);
     toast({
       title: "Pedido realizado!",
@@ -586,9 +587,9 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
           cart={cart}
           store={store}
           onClose={() => setShowCart(false)}
-          onUpdateItem={updateCartItem}
-          onRemoveItem={removeCartItem}
-          onClearCart={clearCart}
+          onUpdateItem={handleUpdateCartItem}
+          onRemoveItem={handleRemoveCartItem}
+          onClearCart={handleClearCart}
           onCheckout={(scheduledTime) => {
             setScheduledFor(scheduledTime || '');
             setShowCart(false);
