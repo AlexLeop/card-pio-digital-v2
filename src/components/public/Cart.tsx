@@ -14,7 +14,7 @@
 
                 // Obter slots disponíveis
                 const availableSlots = useMemo(() => {
-                  if (!store?.allow_scheduling || !cart || cart.length === 0) return [];
+                  if (!store?.allow_scheduling || !Array.isArray(cart) || cart.length === 0) return [];
                   return SchedulingManager.getAvailableSlots(store, 'delivery', 7, cart);
                 }, [store?.allow_scheduling, cart]);
 
@@ -26,27 +26,31 @@
 
                 // Usar a calculadora unificada
                 const totals = useMemo(() => {
-                  if (!cart || cart.length === 0) return { subtotal: 0, total: 0 };
+                  if (!Array.isArray(cart) || cart.length === 0) return { subtotal: 0, total: 0 };
                   return calculateOrderTotal(cart, 0);
                 }, [cart]);
 
                 const cartTotal = totals.total;
 
                 const canProceed = useMemo(() => {
-                  if (!cart || cart.length === 0) return false;
+                  if (!Array.isArray(cart) || cart.length === 0) return false;
                   const minimumOrder = store?.minimum_order || 0;
                   return cartTotal >= minimumOrder;
                 }, [cart, cartTotal, store?.minimum_order]);
 
                 const updateQuantity = useCallback((index: number, newQuantity: number) => {
+                  if (!Array.isArray(cart)) return;
+                  
                   if (newQuantity <= 0) {
                     onRemoveItem(index);
                   } else {
                     onUpdateItem(index, { quantity: newQuantity });
                   }
-                }, [onRemoveItem, onUpdateItem]);
+                }, [onRemoveItem, onUpdateItem, cart]);
 
                 const handleCheckout = useCallback(() => {
+                  if (!Array.isArray(cart)) return;
+
                   // Verificação adicional antes de abrir o checkout
                   if (!canProceed) {
                     toast({
@@ -78,7 +82,7 @@
                   setShowCheckout(true);
                 }, [canProceed, store, cart, deliveryType, scheduledFor]);
 
-                if (!cart || cart.length === 0) {
+                if (!Array.isArray(cart) || cart.length === 0) {
                   return (
                     <Card>
                       <CardContent className="text-center py-8">

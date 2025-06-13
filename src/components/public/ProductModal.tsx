@@ -333,8 +333,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
     const cartItem: CartItem = {
       product,
       quantity,
-      addons: selectedAddons,
-      notes: notes.trim() // Garantir que as observações do produto são incluídas
+      addons: Array.isArray(selectedAddons) ? selectedAddons : [],
+      notes: notes?.trim() || ''
     };
 
     onAddToCart(cartItem);
