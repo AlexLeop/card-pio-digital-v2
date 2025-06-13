@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -33,7 +32,7 @@ const CartModal: React.FC<CartModalProps> = ({
 
   // Obter slots disponíveis
   const availableSlots = useMemo(() => {
-    if (!store.allow_scheduling || cart.length === 0) return [];
+    if (!store?.allow_scheduling || !Array.isArray(cart) || cart.length === 0) return [];
     return SchedulingManager.getAvailableSlots(store, 'delivery', 7, cart);
   }, [store, cart]);
 
@@ -44,16 +43,22 @@ const CartModal: React.FC<CartModalProps> = ({
   };
 
   // Usar a calculadora unificada
-  const totals = calculateOrderTotal(cart, 0);
+  const totals = useMemo(() => {
+    if (!Array.isArray(cart) || cart.length === 0) return { subtotal: 0, total: 0 };
+    return calculateOrderTotal(cart, 0);
+  }, [cart]);
+
   const cartTotal = totals.total;
 
   const canProceed = () => {
-    if (cart.length === 0) return false;
+    if (!Array.isArray(cart) || cart.length === 0) return false;
     const minimumOrder = store.minimum_order || 0;
     return cartTotal >= minimumOrder;
   };
 
   const updateQuantity = (index: number, newQuantity: number) => {
+    if (!Array.isArray(cart)) return;
+    
     if (newQuantity <= 0) {
       onRemoveItem(index);
     } else {
@@ -62,8 +67,26 @@ const CartModal: React.FC<CartModalProps> = ({
   };
 
   const handleCheckout = () => {
+    if (!Array.isArray(cart)) return;
     onCheckout(scheduledFor || undefined);
   };
+
+  if (!Array.isArray(cart) || cart.length === 0) {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Carrinho</DialogTitle>
+          </DialogHeader>
+          <div className="text-center py-8">
+            <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">Seu carrinho está vazio</p>
+            <p className="text-sm text-gray-400">Adicione produtos para continuar</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -75,189 +98,153 @@ const CartModal: React.FC<CartModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        {cart.length === 0 ? (
-          <div className="text-center py-8">
-            <ShoppingCart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Carrinho vazio
-            </h3>
-            <p className="text-gray-500">
-              Adicione produtos ao carrinho para continuar
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Cart Items */}
-            <div className="space-y-3">
-              {cart.map((item, index) => {
-                const itemPrice = item.product.sale_price || item.product.price;
-                const addonsPrice = item.addons.reduce((sum, addon) => 
-                  sum + (addon.price * (addon.quantity || 1)), 0
-                );
-                const totalItemPrice = (itemPrice + addonsPrice) * item.quantity;
+        <div className="space-y-4">
+          {/* Lista de itens */}
+          {cart.map((item, index) => (
+            <div key={index} className="flex items-start space-x-4">
+              {/* Imagem do produto */}
+              <div className="w-16 h-16 flex-shrink-0">
+                <img
+                  src={item.product.image_url || '/placeholder.svg'}
+                  alt={item.product.name}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
 
-                return (
-                  <Card key={index} className="border-l-4 border-l-primary">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 mb-1">
-                            {item.product.name}
-                          </h4>
-                          
-                          {item.addons.length > 0 && (
-                            <div className="mb-2">
-                              <p className="text-sm text-gray-600 mb-1">Adicionais:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {item.addons.map((addon, addonIndex) => (
-                                  <Badge key={addonIndex} variant="secondary" className="text-xs">
-                                    {addon.name} {addon.quantity && addon.quantity > 1 && `x${addon.quantity}`}
-                                    {addon.price > 0 && ` (+R$ ${(addon.price * (addon.quantity || 1)).toFixed(2)})`}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+              {/* Detalhes do produto */}
+              <div className="flex-1">
+                <h3 className="font-medium">{item.product.name}</h3>
+                <p className="text-sm text-gray-500">
+                  R$ {item.product.price.toFixed(2)}
+                </p>
+                
+                {/* Adicionais */}
+                {Array.isArray(item.addons) && item.addons.length > 0 && (
+                  <div className="mt-1">
+                    {item.addons.map((addon, addonIndex) => (
+                      <p key={addonIndex} className="text-xs text-gray-500">
+                        + {addon.name} (R$ {addon.price.toFixed(2)})
+                      </p>
+                    ))}
+                  </div>
+                )}
 
-                          {item.notes && (
-                            <p className="text-sm text-gray-600 mb-2">
-                              <strong>Observações:</strong> {item.notes}
-                            </p>
-                          )}
+                {/* Observações */}
+                {item.notes && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Obs: {item.notes}
+                  </p>
+                )}
+              </div>
 
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateQuantity(index, item.quantity - 1)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="font-medium min-w-[2rem] text-center">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateQuantity(index, item.quantity + 1)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              <span className="font-bold text-lg text-primary">
-                                R$ {totalItemPrice.toFixed(2)}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => onRemoveItem(index)}
-                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {/* Controles de quantidade */}
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => updateQuantity(index, item.quantity - 1)}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="w-8 text-center">{item.quantity}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => updateQuantity(index, item.quantity + 1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
+          ))}
 
-            {/* Seção de agendamento */}
-            {store.allow_scheduling && cart.length > 0 && (
-              <div className="space-y-2 border-t pt-4">
-                <Label className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Agendar pedido para (opcional)
-                </Label>
-                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+          {/* Seção de agendamento */}
+          {store.allow_scheduling && cart.length > 0 && (
+            <div className="space-y-2 border-t pt-4">
+              <Label className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Agendar pedido para (opcional)
+              </Label>
+              <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                <Button
+                  type="button"
+                  variant={!scheduledFor ? 'default' : 'outline'}
+                  onClick={() => setScheduledFor('')}
+                  className="text-sm"
+                >
+                  Agora
+                </Button>
+                {availableSlots.map((slot, index) => (
                   <Button
+                    key={index}
                     type="button"
-                    variant={!scheduledFor ? 'default' : 'outline'}
-                    onClick={() => setScheduledFor('')}
+                    variant={scheduledFor === `${slot.date}T${slot.time}` ? 'default' : 'outline'}
+                    onClick={() => setScheduledFor(`${slot.date}T${slot.time}`)}
                     className="text-sm"
                   >
-                    Agora
+                    {formatDateTime(slot.date, slot.time)}
                   </Button>
-                  {availableSlots.map((slot, index) => (
-                    <Button
-                      key={index}
-                      type="button"
-                      variant={scheduledFor === `${slot.date}T${slot.time}` ? 'default' : 'outline'}
-                      onClick={() => setScheduledFor(`${slot.date}T${slot.time}`)}
-                      className="text-sm"
-                    >
-                      {formatDateTime(slot.date, slot.time)}
-                    </Button>
-                  ))}
-                </div>
-                {availableSlots.length === 0 && (
-                  <p className="text-sm text-gray-500">
-                    Nenhum horário disponível para agendamento
-                  </p>
+                ))}
+              </div>
+              {availableSlots.length === 0 && (
+                <p className="text-sm text-gray-500">
+                  Nenhum horário disponível para agendamento
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Total */}
+          <div className="border-t pt-4 mt-4">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-xl font-bold">Total:</span>
+              <span className="text-2xl font-bold text-primary">
+                R$ {cartTotal.toFixed(2)}
+              </span>
+            </div>
+
+            {/* Mostrar informação do pedido mínimo */}
+            {store.minimum_order && store.minimum_order > 0 && (
+              <div className="text-xs text-gray-600 mb-3">
+                {cartTotal < store.minimum_order ? (
+                  <div className="text-red-600">
+                    Pedido mínimo: R$ {store.minimum_order.toFixed(2)}
+                    <br />
+                    Faltam: R$ {(store.minimum_order - cartTotal).toFixed(2)}
+                  </div>
+                ) : (
+                  <div className="text-green-600">
+                    ✓ Pedido mínimo atingido
+                  </div>
                 )}
               </div>
             )}
 
-            {/* Cart Summary */}
-            <div className="border-t pt-4 mt-4">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xl font-bold">Total:</span>
-                <span className="text-2xl font-bold text-primary">
-                  R$ {cartTotal.toFixed(2)}
-                </span>
-              </div>
-
-              {/* Mostrar informação do pedido mínimo */}
-              {store.minimum_order && store.minimum_order > 0 && (
-                <div className="text-xs text-gray-600 mb-3">
-                  {cartTotal < store.minimum_order ? (
-                    <div className="text-red-600">
-                      Pedido mínimo: R$ {store.minimum_order.toFixed(2)}
-                      <br />
-                      Faltam: R$ {(store.minimum_order - cartTotal).toFixed(2)}
-                    </div>
-                  ) : (
-                    <div className="text-green-600">
-                      ✓ Pedido mínimo atingido
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="flex space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={onClearCart}
-                  className="flex-1"
-                >
-                  Limpar Carrinho
-                </Button>
-                <Button
-                  onClick={handleCheckout}
-                  disabled={!canProceed()}
-                  className={`flex-1 ${
-                    !canProceed() 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-primary hover:bg-primary/90'
-                  }`}
-                >
-                  {!canProceed() && store.minimum_order && cartTotal < store.minimum_order
-                    ? `Faltam R$ ${(store.minimum_order - cartTotal).toFixed(2)}`
-                    : 'Finalizar Pedido'
-                  }
-                </Button>
-              </div>
+            <div className="flex space-x-3">
+              <Button
+                variant="outline"
+                onClick={onClearCart}
+                className="flex-1"
+              >
+                Limpar Carrinho
+              </Button>
+              <Button
+                onClick={handleCheckout}
+                disabled={!canProceed()}
+                className={`flex-1 ${
+                  !canProceed() 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-primary hover:bg-primary/90'
+                }`}
+              >
+                {!canProceed() && store.minimum_order && cartTotal < store.minimum_order
+                  ? `Faltam R$ ${(store.minimum_order - cartTotal).toFixed(2)}`
+                  : 'Finalizar Pedido'
+                }
+              </Button>
             </div>
           </div>
-        )}
+        </div>
       </DialogContent>
     </Dialog>
   );
