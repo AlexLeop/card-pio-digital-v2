@@ -635,12 +635,14 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
                               <Minus className="h-4 w-4" />
                             </Button>
                             <Input
-                              type="number"
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
                               min="1"
                               max={category.max_select}
                               value={getAddonQuantity(category.id, addon.id)}
                               onChange={(e) => {
-                                const value = parseInt(e.target.value) || 1;
+                                const value = parseInt(e.target.value.replace(/\D/g, '')) || 1;
                                 updateAddonQuantity(category.id, addon.id, Math.min(category.max_select || 1, Math.max(1, value)));
                               }}
                               className="w-12 h-8 text-center"
