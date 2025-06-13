@@ -40,7 +40,7 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
-  const [scheduledFor, setScheduledFor] = useState<string>(''); // Adicionar esta linha
+  const [scheduledFor, setScheduledFor] = useState<string>('');
   
   // Adicionar estado para controlar o modal de busca
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -186,19 +186,37 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
     });
   }, [categories, stockManagedProducts, checkAvailability]);
 
+  // Função para adicionar ao carrinho com validações
   const handleAddToCart = (product: Product, quantity: number, addons: ProductAddon[], notes?: string, scheduledFor?: string) => {
+    if (!product || !product.id) {
+      toast({
+        title: "Erro",
+        description: "Produto inválido",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (quantity <= 0) {
+      toast({
+        title: "Erro",
+        description: "Quantidade inválida",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const cartItem: CartItem = {
       product,
       quantity,
-      addons: addons.map(addon => ({
-        ...addon,
-        quantity: addon.quantity || 1
-      })),
-      notes,
+      addons: Array.isArray(addons) ? addons : [],
+      notes: notes?.trim() || '',
       scheduled_for: scheduledFor
     };
 
     setCart(prev => {
+      if (!Array.isArray(prev)) return [cartItem];
+      
       const existingIndex = prev.findIndex(item => 
         item.product.id === product.id && 
         JSON.stringify(item.addons) === JSON.stringify(cartItem.addons) &&
@@ -221,22 +239,41 @@ const StoreMenu: React.FC<StoreMenuProps> = ({ store }) => {
     });
   };
 
+  // Função para atualizar item do carrinho com validações
   const updateCartItem = (index: number, updates: Partial<CartItem>) => {
-    setCart(prev => prev.map((item, i) => i === index ? { ...item, ...updates } : item));
+    setCart(prev => {
+      if (!Array.isArray(prev)) return prev;
+      return prev.map((item, i) => i === index ? { ...item, ...updates } : item);
+    });
   };
 
+  // Função para remover item do carrinho com validações
   const removeCartItem = (index: number) => {
-    setCart(prev => prev.filter((_, i) => i !== index));
+    setCart(prev => {
+      if (!Array.isArray(prev)) return [];
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
+  // Função para limpar carrinho com validações
   const clearCart = () => {
     setCart([]);
   };
 
-  const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totals = calculateOrderTotal(cart, 0);
+  // Calcular totais com validações
+  const cartItemsCount = useMemo(() => {
+    if (!Array.isArray(cart)) return 0;
+    return cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  }, [cart]);
+
+  const totals = useMemo(() => {
+    if (!Array.isArray(cart)) return { subtotal: 0, total: 0 };
+    return calculateOrderTotal(cart, 0);
+  }, [cart]);
+
   const cartTotal = totals.total;
 
+  // Função para finalizar pedido com validações
   const handleSuccessfulOrder = () => {
     clearCart();
     setShowCheckout(false);
