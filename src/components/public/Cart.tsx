@@ -16,7 +16,7 @@
                 const availableSlots = useMemo(() => {
                   if (!store?.allow_scheduling || !cart || cart.length === 0) return [];
                   return SchedulingManager.getAvailableSlots(store, 'delivery', 7, cart);
-                }, [store, cart]);
+                }, [store?.allow_scheduling, cart]);
 
                 // Função para formatar data e hora
                 const formatDateTime = (dateStr: string, timeStr: string) => {
@@ -38,15 +38,15 @@
                   return cartTotal >= minimumOrder;
                 }, [cart, cartTotal, store?.minimum_order]);
 
-                const updateQuantity = (index: number, newQuantity: number) => {
+                const updateQuantity = useCallback((index: number, newQuantity: number) => {
                   if (newQuantity <= 0) {
                     onRemoveItem(index);
                   } else {
                     onUpdateItem(index, { quantity: newQuantity });
                   }
-                };
+                }, [onRemoveItem, onUpdateItem]);
 
-                const handleCheckout = () => {
+                const handleCheckout = useCallback(() => {
                   // Verificação adicional antes de abrir o checkout
                   if (!canProceed) {
                     toast({
@@ -76,7 +76,7 @@
                   }
 
                   setShowCheckout(true);
-                };
+                }, [canProceed, store, cart, deliveryType, scheduledFor]);
 
                 if (!cart || cart.length === 0) {
                   return (
