@@ -338,343 +338,112 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, store, onAddToCart
   }, [availableAddons]);
 
   return (
-    <Dialog open={!!product} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>{product?.name}</span>
-            {product?.is_featured && (
-              <Badge className="bg-yellow-100 text-yellow-800">
-                <Star className="h-3 w-3 mr-1" />
-                Destaque
-              </Badge>
-            )}
-          </DialogTitle>
+          <DialogTitle>{product?.name}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Product Images Gallery */}
-          {productImages.length > 0 && (
-            <div className="relative">
-              <div className="aspect-video w-full overflow-hidden rounded-lg">
-                <img
-                  src={productImages[currentImageIndex]?.url}
-                  alt={`${product?.name} - Imagem ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = '/placeholder.svg';
-                  }}
-                />
-              </div>
-              
-              {/* Navigation arrows - only show if more than 1 image */}
-              {productImages.length > 1 && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                    onClick={prevImage}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                    onClick={nextImage}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-              
-              {/* Image indicators - only show if more than 1 image */}
-              {productImages.length > 1 && (
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                  {productImages.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        index === currentImageIndex 
-                          ? 'bg-white' 
-                          : 'bg-white/50'
-                      }`}
-                      onClick={() => setCurrentImageIndex(index)}
-                    />
-                  ))}
-                </div>
-              )}
-              
-              {/* Image counter */}
-              {productImages.length > 1 && (
-                <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                  {currentImageIndex + 1} / {productImages.length}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Thumbnail strip - only show if more than 1 image */}
-          {productImages.length > 1 && (
-            <div className="flex space-x-2 overflow-x-auto pb-2">
-              {productImages.map((image, index) => (
-                <button
-                  key={index}
-                  className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                    index === currentImageIndex 
-                      ? 'border-blue-500' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setCurrentImageIndex(index)}
-                >
-                  <img
-                    src={image.url}
-                    alt={`${product?.name} - Miniatura ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '/placeholder.svg';
-                    }}
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Product Info */}
-          <div className="space-y-4">
-            {product?.description && (
-              <p className="text-gray-600">{product?.description}</p>
-            )}
-
-            {/* Price Display */}
-            <div className="flex items-center space-x-2">
-              {product?.sale_price ? (
-                <>
-                  <span className="text-2xl font-bold text-green-600">
-                    R$ {product?.sale_price.toFixed(2)}
-                  </span>
-                  <span className="text-lg text-gray-500 line-through">
-                    R$ {product?.price.toFixed(2)}
-                  </span>
-                  <Badge variant="destructive">Promoção</Badge>
-                </>
-              ) : (
-                <span className="text-2xl font-bold text-gray-900">
-                  R$ {product?.price.toFixed(2)}
-                </span>
-              )}
-            </div>
-
-            {/* Preparation Time */}
-            {product?.preparation_time && (
-              <div className="flex items-center text-sm text-gray-600">
-                <Clock className="h-4 w-4 mr-1" />
-                <span>Tempo de preparo: {product?.preparation_time} min</span>
-              </div>
-            )}
-
-            {/* Ingredients */}
-            {product?.ingredients && product?.ingredients.length > 0 && (
-              <div>
-                <Label className="text-sm font-medium">Ingredientes:</Label>
-                <p className="text-sm text-gray-600 mt-1">
-                  {product?.ingredients.join(', ')}
-                </p>
-              </div>
-            )}
-
-            {/* Allergens */}
-            {product?.allergens && product?.allergens.length > 0 && (
-              <div>
-                <Label className="text-sm font-medium text-red-600">Alergênicos:</Label>
-                <p className="text-sm text-red-600 mt-1">
-                  {product?.allergens.join(', ')}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Quantity Selector */}
-          <div className="space-y-2">
-            <Label>Quantidade</Label>
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleQuantityChange(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <Input
-                type="number"
-                min="1"
-                max={maxQuantity}
-                value={quantity}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value) || 1;
-                  handleQuantityChange(value);
-                }}
-                className="w-16 text-center"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleQuantityChange(quantity + 1)}
-                disabled={quantity >= maxQuantity}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Addons */}
-          {loading ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <span className="ml-2 text-sm text-gray-600">Carregando adicionais...</span>
-              </div>
-            </div>
-          ) : error ? (
-            <div className="space-y-4">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
-                  <p className="text-sm text-yellow-800">
-                    Não foi possível carregar os adicionais. Você ainda pode fazer o pedido sem adicionais.
-                  </p>
-                </div>
-                <button 
-                  onClick={() => window.location.reload()} 
-                  className="mt-2 text-sm text-yellow-600 underline hover:text-yellow-800"
-                >
-                  Tentar novamente
-                </button>
-              </div>
-            </div>
-          ) : productAddons && productAddons.length > 0 ? (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold">Personalize seu pedido</h3>
-              
-              {Object.entries(addonsByCategory).map(([category, addons]) => (
-                <div key={category} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">{category}</h4>
-                      {addons.map((addon) => (
-                        <div key={addon.id} className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3 flex-1">
-                            <Checkbox
-                              id={`addon-${addon.id}`}
-                              checked={isAddonSelected(category, addon.id)}
-                              onCheckedChange={(checked) => handleAddonChange(category, addon, checked as boolean)}
-                            />
-                            
-                            <div className="flex-1">
-                              <Label htmlFor={`addon-${addon.id}`} className="font-medium cursor-pointer">
-                                {addon.name}
-                              </Label>
-                              {addon.description && (
-                                <p className="text-sm text-gray-600">{addon.description}</p>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-3">
-                            <span className="font-medium text-green-600">
-                              {addon.price > 0 ? `+R$ ${addon.price.toFixed(2)}` : ''}
-                            </span>
-                            {addon.max_quantity && (
-                              <span className="text-xs text-gray-500">
-                                Máx: {addon.max_quantity}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Controles de quantidade */}
-                  {isAddonSelected(category, addon.id) && (
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateAddonQuantity(category, addon.id, Math.max(1, getAddonQuantity(category, addon.id) - 1))}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="w-8 text-center">{getAddonQuantity(category, addon.id)}</span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateAddonQuantity(category, addon.id, getAddonQuantity(category, addon.id) + 1)}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : null}
-
-          {/* Validation Errors */}
-          {validationErrors.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h4 className="font-medium text-red-800 mb-2">Atenção:</h4>
-              <ul className="text-sm text-red-700 space-y-1">
-                {validationErrors.map((error, index) => (
-                  <li key={index}>• {error}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Observações (opcional)</Label>
-            <Textarea
-              id="notes"
-              placeholder="Alguma observação especial para este item?"
-              value={productNotes}
-              onChange={(e) => setProductNotes(e.target.value)}
-              className="min-h-[80px]"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Imagem do produto */}
+          <div className="relative aspect-square">
+            <img
+              src={product?.image_url || '/placeholder.svg'}
+              alt={product?.name}
+              className="object-cover w-full h-full rounded-lg"
             />
           </div>
 
-          {/* Price Summary */}
-          <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Produto ({quantity}x)</span>
-              <span>R$ {pricing.productTotal.toFixed(2)}</span>
-            </div>
-            
-            {pricing.addonsTotal > 0 && (
-              <div className="flex justify-between text-sm">
-                <span>Adicionais</span>
-                <span>R$ {pricing.addonsTotal.toFixed(2)}</span>
+          {/* Detalhes do produto */}
+          <div className="space-y-4">
+            <p className="text-gray-600">{product?.description}</p>
+            <p className="text-2xl font-bold">
+              R$ {product?.price.toFixed(2)}
+            </p>
+
+            {/* Adicionais */}
+            {product?.addons && product.addons.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Adicionais</h3>
+                {product.addons.map((addon) => (
+                  <div key={addon.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`addon-${addon.id}`}
+                      checked={isAddonSelected(addon.category || 'Sem categoria', addon.id)}
+                      onCheckedChange={(checked) => handleAddonChange(addon.category || 'Sem categoria', addon, checked as boolean)}
+                    />
+                    <Label htmlFor={`addon-${addon.id}`} className="flex-1">
+                      <div className="flex justify-between">
+                        <span>{addon.name}</span>
+                        <span className="text-sm text-gray-500">
+                          R$ {addon.price.toFixed(2)}
+                        </span>
+                      </div>
+                    </Label>
+
+                    {/* Controles de quantidade */}
+                    {isAddonSelected(addon.category || 'Sem categoria', addon.id) && (
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateAddonQuantity(addon.category || 'Sem categoria', addon.id, Math.max(1, getAddonQuantity(addon.category || 'Sem categoria', addon.id) - 1))}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-8 text-center">{getAddonQuantity(addon.category || 'Sem categoria', addon.id)}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateAddonQuantity(addon.category || 'Sem categoria', addon.id, getAddonQuantity(addon.category || 'Sem categoria', addon.id) + 1)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
-            
-            <div className="border-t pt-2 flex justify-between font-bold text-lg">
-              <span>Total</span>
-              <span className="text-green-600">R$ {pricing.total.toFixed(2)}</span>
-            </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex space-x-3">
-            <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancelar
-            </Button>
-            <Button 
-              onClick={handleAddToCart} 
-              className="flex-1"
-              disabled={validationErrors.length > 0}
+            {/* Observações */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Observações</Label>
+              <Textarea
+                id="notes"
+                value={productNotes}
+                onChange={(e) => setProductNotes(e.target.value)}
+                placeholder="Ex: Sem cebola, bem passado..."
+                className="resize-none"
+              />
+            </div>
+
+            {/* Quantidade */}
+            <div className="flex items-center space-x-4">
+              <Label>Quantidade</Label>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="w-8 text-center">{quantity}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setQuantity(prev => prev + 1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Botão de adicionar */}
+            <Button
+              onClick={handleAddToCart}
+              className="w-full"
             >
               Adicionar ao Carrinho
             </Button>
