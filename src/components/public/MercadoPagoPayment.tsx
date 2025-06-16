@@ -116,68 +116,70 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   };
   
   const createPixPayment = async () => {
-  try {
-  setLoading(true);
-  setErrorMessage('');
-  
-  const paymentData = {
-  amount: Number(amount),
-  description: description,
-  orderId: orderId,
-  customerData: {
-  email: customerData.email || `${customerData.phone.replace(/\D/g, '')}@temp.com`,
-  document: customerData.document || '00000000000' // Adicionar CPF do cliente
-  }
-  };
-  
-  const response = await fetch('https://eimlszeysrpapuwtudij.supabase.co/functions/v1/create-pix-payment', {
-  method: 'POST',
-  headers: {
-  'Content-Type': 'application/json',
-  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpbWxzemV5c3JwYXB1d3R1ZGlqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzQyNTM2OSwiZXhwIjoyMDYzMDAxMzY5fQ.DNyXpKnkMJJRsUYuOXpu0g5SX-NVbVoLkEtmKLoIufE'
-  },
-  body: JSON.stringify(paymentData)
-  });
-  
-  if (response.ok) {
-  const data = await response.json();
-  if (data.qr_code && data.qr_code_base64) {
-  setPixData({
-  qrCode: data.qr_code,
-  qrCodeBase64: data.qr_code_base64,
-  paymentId: data.payment_id
-  });
-  
-  // Iniciar polling do status do pagamento
-  const interval = setInterval(() => {
-  pollPaymentStatus(data.payment_id);
-  }, 5000);
-  
-  setPollingInterval(interval);
-  
-  // Limpar o intervalo após 10 minutos
-  setTimeout(() => {
-  if (pollingInterval) {
-  clearInterval(pollingInterval);
-  setPollingInterval(null);
-  }
-  }, 10 * 60 * 1000);
-  
-  toast({
-  title: "PIX gerado com sucesso!",
-  description: "Escaneie o QR Code ou copie o código para pagar"
-  });
-  } else {
-  setErrorMessage('Dados do PIX não recebidos da API');
-  throw new Error('Dados do PIX não recebidos da API');
-  }
-  } catch (error: any) {
-  if (!errorMessage) {
-  setErrorMessage(`Erro ao criar pagamento PIX: ${error.message}`);
-  }
-  } finally {
-  setLoading(false);
-  }
+    try {
+      setLoading(true);
+      setErrorMessage('');
+      
+      const paymentData = {
+        amount: Number(amount),
+        description: description,
+        orderId: orderId,
+        customerData: {
+          email: customerData.email || `${customerData.phone.replace(/\D/g, '')}@temp.com`,
+          document: customerData.document || '00000000000'
+        },
+        webhookUrl: 'https://eimlszeysrpapuwtudij.supabase.co/functions/v1/payment-webhook'
+      };
+      
+      const response = await fetch('https://eimlszeysrpapuwtudij.supabase.co/functions/v1/create-pix-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpbWxzemV5c3JwYXB1d3R1ZGlqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzQyNTM2OSwiZXhwIjoyMDYzMDAxMzY5fQ.DNyXpKnkMJJRsUYuOXpu0g5SX-NVbVoLkEtmKLoIufE'
+        },
+        body: JSON.stringify(paymentData)
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.qr_code && data.qr_code_base64) {
+          setPixData({
+            qrCode: data.qr_code,
+            qrCodeBase64: data.qr_code_base64,
+            paymentId: data.payment_id
+          });
+          
+          // Iniciar polling do status do pagamento
+          const interval = setInterval(() => {
+            pollPaymentStatus(data.payment_id);
+          }, 5000);
+          
+          setPollingInterval(interval);
+          
+          // Limpar o intervalo após 10 minutos
+          setTimeout(() => {
+            if (pollingInterval) {
+              clearInterval(pollingInterval);
+              setPollingInterval(null);
+            }
+          }, 10 * 60 * 1000);
+          
+          toast({
+            title: "PIX gerado com sucesso!",
+            description: "Escaneie o QR Code ou copie o código para pagar"
+          });
+        } else {
+          setErrorMessage('Dados do PIX não recebidos da API');
+          throw new Error('Dados do PIX não recebidos da API');
+        }
+      }
+    } catch (error: any) {
+      if (!errorMessage) {
+        setErrorMessage(`Erro ao criar pagamento PIX: ${error.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
   
   // useEffect modificado
