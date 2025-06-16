@@ -139,51 +139,23 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   body: JSON.stringify(paymentData)
   });
   
-  if (!response.ok) {
-  const errorText = await response.text();
-  
-  let errorDetails = '';
-  let suggestion = '';
-  
-  try {
-  const errorJson = JSON.parse(errorText);
-  errorDetails = errorJson.details || errorJson.error || 'Erro desconhecido';
-  suggestion = errorJson.suggestion || '';
-  } catch {
-  errorDetails = errorText;
-  }
-  
-  setErrorMessage(`${errorDetails}${suggestion ? '\n\n' + suggestion : ''}`);
-  throw new Error(`Erro na API: ${response.status} - ${errorDetails}`);
-  }
-  
-  const result = await response.json();
-  
-  if (result.error) {
-  setErrorMessage(result.error + (result.suggestion ? '\n\n' + result.suggestion : ''));
-  throw new Error(result.error);
-  }
-  
-  if (result.qrCode || result.qrCodeText) {
-  setPixCode(result.qrCodeText || result.qrCode);
-  setPixQrCode(result.qrCode);
-  setPaymentId(result.paymentId);
+  if (response.ok) {
+  const data = await response.json();
+  if (data.qr_code && data.qr_code_base64) {
+  setPixData({
+  qrCode: data.qr_code,
+  qrCodeBase64: data.qr_code_base64,
+  paymentId: data.payment_id
+  });
   
   // Iniciar polling do status do pagamento
-  if (result.paymentId) {
-  // Limpar qualquer intervalo existente
-  if (pollingInterval) {
-  clearInterval(pollingInterval);
-  }
-  
-  // Criar novo intervalo de polling
   const interval = setInterval(() => {
-  pollPaymentStatus(result.paymentId);
-  }, 5000); // Verificar a cada 5 segundos
+  pollPaymentStatus(data.payment_id);
+  }, 5000);
   
   setPollingInterval(interval);
   
-  // Limpar o intervalo após 10 minutos (timeout de segurança)
+  // Limpar o intervalo após 10 minutos
   setTimeout(() => {
   if (pollingInterval) {
   clearInterval(pollingInterval);
