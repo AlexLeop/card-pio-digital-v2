@@ -50,6 +50,7 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   const [mp, setMp] = useState<any>(null);
   const [cardFormReady, setCardFormReady] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     loadMercadoPago();
@@ -168,10 +169,27 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   setPixQrCode(result.qrCode);
   setPaymentId(result.paymentId);
   
-  // Start polling for payment status
+  // Iniciar polling do status do pagamento
   if (result.paymentId) {
-  pollPaymentStatus(result.paymentId);
+  // Limpar qualquer intervalo existente
+  if (pollingInterval) {
+  clearInterval(pollingInterval);
   }
+  
+  // Criar novo intervalo de polling
+  const interval = setInterval(() => {
+  pollPaymentStatus(result.paymentId);
+  }, 5000); // Verificar a cada 5 segundos
+  
+  setPollingInterval(interval);
+  
+  // Limpar o intervalo após 10 minutos (timeout de segurança)
+  setTimeout(() => {
+  if (pollingInterval) {
+  clearInterval(pollingInterval);
+  setPollingInterval(null);
+  }
+  }, 10 * 60 * 1000);
   
   toast({
   title: "PIX gerado com sucesso!",
@@ -332,63 +350,37 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   }
   };
   
-  const pollPaymentStatus = (paymentId: string) => {
-  console.log('Starting payment status polling for:', paymentId);
-  
-  // Armazenar erros consecutivos
-  let consecutiveErrors = 0;
-  
-  const interval = setInterval(async () => {
+  const pollPaymentStatus = async (paymentId: string) => {
   try {
-  const response = await fetch(`https://eimlszeysrpapuwtudij.supabase.co/functions/v1/check-payment-status/${paymentId}`, {
+  const response = await fetch(`https://eimlszeysrpapuwtudij.supabase.co/functions/v1/check-payment-status`, {
+  method: 'POST',
   headers: {
-  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpbWxzemV5c3JwYXB1d3R1ZGlqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzQyNTM2OSwiZXhwIjoyMDYzMDAxMzY5fQ.DNyXpKnkMJJRsUYuOXpu0g5SX-NVbVoLkEtmKLoIufE',
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpbWxzemV5c3JwYXB1d3R1ZGlqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzQyNTM2OSwiZXhwIjoyMDYzMDAxMzY5fQ.DNyXpKnkMJJRsUYuOXpu0g5SX-NVbVoLkEtmKLoIufE'
   },
-  mode: 'cors' // Explicitamente definir o modo como CORS
+  body: JSON.stringify({ paymentId })
   });
   
-  const status = await response.json();
-  console.log('Payment status check:', status);
+  const result = await response.json();
   
-  // Resetar contador de erros
-  consecutiveErrors = 0;
-  
-  if (status.status === 'approved') {
-  clearInterval(interval);
-  toast({
-  title: "Pagamento aprovado!",
-  description: "Seu pagamento foi processado com sucesso. Redirecionando..."
-  });
-  
-  // Redirect to order success page with auto WhatsApp redirect
-  setTimeout(() => {
-  window.location.href = `/pedido/${orderId}`;
-  }, 2000);
-  
-  } else if (status.status === 'rejected' || status.status === 'cancelled') {
-  clearInterval(interval);
-  onError('Pagamento rejeitado ou cancelado');
+  if (result.status === 'approved') {
+  // Limpar o intervalo de polling
+  if (pollingInterval) {
+  clearInterval(pollingInterval);
+  setPollingInterval(null);
+  }
+  onSuccess(paymentId);
+  } else if (result.status === 'rejected' || result.status === 'cancelled') {
+  // Limpar o intervalo de polling
+  if (pollingInterval) {
+  clearInterval(pollingInterval);
+  setPollingInterval(null);
+  }
+  onError('Pagamento não foi aprovado');
   }
   } catch (error) {
   console.error('Error checking payment status:', error);
-  
-  // Incrementar contador de erros
-  consecutiveErrors++;
-  
-  // Se tivermos muitos erros consecutivos, parar de tentar
-  if (consecutiveErrors > 5) {
-  console.log('Too many consecutive errors, stopping polling');
-  clearInterval(interval);
   }
-  }
-  }, 5000); // Aumentar o intervalo para 5 segundos para reduzir a carga
-  
-  // Stop polling after 10 minutes
-  setTimeout(() => {
-  clearInterval(interval);
-  console.log('Payment polling timeout reached');
-  }, 600000);
   };
   
   const copyPixCode = async () => {
@@ -445,6 +437,15 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   document.body.removeChild(textArea);
   }
   };
+  
+  // Limpar o intervalo quando o componente for desmontado
+  useEffect(() => {
+  return () => {
+  if (pollingInterval) {
+  clearInterval(pollingInterval);
+  }
+  };
+  }, [pollingInterval]);
   
   if (loading) {
   return (

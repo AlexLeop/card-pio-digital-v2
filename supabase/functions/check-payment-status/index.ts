@@ -7,29 +7,17 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // Verificar se é uma notificação do Mercado Pago
-    const contentType = req.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid content type' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
-
-    const data = await req.json()
+    const { paymentId } = await req.json()
     
-    // Verificar se é uma notificação de pagamento
-    if (!data.action || !data.data || !data.data.id) {
+    if (!paymentId) {
       return new Response(
-        JSON.stringify({ error: 'Invalid notification data' }),
+        JSON.stringify({ error: 'Payment ID is required' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -42,11 +30,11 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Buscar o pedido pelo ID do pagamento
+    // Get order data
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
-      .select('id, store_id')
-      .eq('mercado_pago_payment_id', data.data.id)
+      .select('store_id, mercado_pago_payment_id')
+      .eq('mercado_pago_payment_id', paymentId)
       .single()
 
     if (orderError) {
@@ -60,7 +48,7 @@ serve(async (req) => {
       )
     }
 
-    // Buscar as credenciais da loja
+    // Get store credentials
     let accessToken = null
     const { data: storeData, error: storeError } = await supabase
       .from('stores')
@@ -72,7 +60,7 @@ serve(async (req) => {
       accessToken = storeData.mercado_pago_access_token
     }
 
-    // Fallback para variáveis de ambiente
+    // Fallback to environment variables
     if (!accessToken) {
       accessToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN')
     }
@@ -88,8 +76,8 @@ serve(async (req) => {
       )
     }
 
-    // Verificar o status do pagamento no Mercado Pago
-    const response = await fetch(`https://api.mercadopago.com/v1/payments/${data.data.id}`, {
+    // Check payment status with Mercado Pago
+    const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -113,7 +101,7 @@ serve(async (req) => {
 
     const payment = await response.json()
 
-    // Atualizar o status do pedido se o pagamento foi aprovado
+    // Update order status if payment is approved
     if (payment.status === 'approved') {
       const { error: updateError } = await supabase
         .from('orders')
@@ -122,24 +110,17 @@ serve(async (req) => {
           payment_status: 'paid',
           updated_at: new Date().toISOString()
         })
-        .eq('id', orderData.id)
+        .eq('mercado_pago_payment_id', paymentId)
 
       if (updateError) {
         console.error('Error updating order status:', updateError)
-        return new Response(
-          JSON.stringify({ error: 'Failed to update order status' }),
-          { 
-            status: 500, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        )
       }
     }
 
     return new Response(
       JSON.stringify({ 
-        success: true,
-        message: 'Webhook processed successfully'
+        status: payment.status,
+        paymentId: payment.id
       }), 
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -161,4 +142,4 @@ serve(async (req) => {
       }
     )
   }
-})
+}) 

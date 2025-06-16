@@ -1,0 +1,2006 @@
+[
+    {
+      "table_name": "_http_response",
+      "index_name": "_http_response_created_idx",
+      "column_name": "created"
+    },
+    {
+      "table_name": "addon_categories",
+      "index_name": "addon_categories_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "addon_items",
+      "index_name": "addon_items_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "audit_log_entries",
+      "index_name": "audit_log_entries_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "audit_log_entries",
+      "index_name": "audit_logs_instance_id_idx",
+      "column_name": "instance_id"
+    },
+    {
+      "table_name": "buckets",
+      "index_name": "bname",
+      "column_name": "name"
+    },
+    {
+      "table_name": "buckets",
+      "index_name": "buckets_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "categories",
+      "index_name": "categories_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "documents",
+      "index_name": "documents_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "flow_state",
+      "index_name": "flow_state_created_at_idx",
+      "column_name": "created_at"
+    },
+    {
+      "table_name": "flow_state",
+      "index_name": "flow_state_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "flow_state",
+      "index_name": "idx_auth_code",
+      "column_name": "auth_code"
+    },
+    {
+      "table_name": "flow_state",
+      "index_name": "idx_user_id_auth_method",
+      "column_name": "authentication_method"
+    },
+    {
+      "table_name": "flow_state",
+      "index_name": "idx_user_id_auth_method",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "hooks",
+      "index_name": "hooks_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "hooks",
+      "index_name": "supabase_functions_hooks_h_table_id_h_name_idx",
+      "column_name": "hook_name"
+    },
+    {
+      "table_name": "hooks",
+      "index_name": "supabase_functions_hooks_h_table_id_h_name_idx",
+      "column_name": "hook_table_id"
+    },
+    {
+      "table_name": "hooks",
+      "index_name": "supabase_functions_hooks_request_id_idx",
+      "column_name": "request_id"
+    },
+    {
+      "table_name": "identities",
+      "index_name": "identities_email_idx",
+      "column_name": "email"
+    },
+    {
+      "table_name": "identities",
+      "index_name": "identities_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "identities",
+      "index_name": "identities_provider_id_provider_unique",
+      "column_name": "provider_id"
+    },
+    {
+      "table_name": "identities",
+      "index_name": "identities_provider_id_provider_unique",
+      "column_name": "provider"
+    },
+    {
+      "table_name": "identities",
+      "index_name": "identities_user_id_idx",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "instances",
+      "index_name": "instances_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "job",
+      "index_name": "job_pkey",
+      "column_name": "jobid"
+    },
+    {
+      "table_name": "job",
+      "index_name": "jobname_username_uniq",
+      "column_name": "jobname"
+    },
+    {
+      "table_name": "job",
+      "index_name": "jobname_username_uniq",
+      "column_name": "username"
+    },
+    {
+      "table_name": "job_run_details",
+      "index_name": "job_run_details_pkey",
+      "column_name": "runid"
+    },
+    {
+      "table_name": "mensage_user",
+      "index_name": "mensage_user_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "mfa_amr_claims",
+      "index_name": "amr_id_pk",
+      "column_name": "id"
+    },
+    {
+      "table_name": "mfa_amr_claims",
+      "index_name": "mfa_amr_claims_session_id_authentication_method_pkey",
+      "column_name": "authentication_method"
+    },
+    {
+      "table_name": "mfa_amr_claims",
+      "index_name": "mfa_amr_claims_session_id_authentication_method_pkey",
+      "column_name": "session_id"
+    },
+    {
+      "table_name": "mfa_challenges",
+      "index_name": "mfa_challenge_created_at_idx",
+      "column_name": "created_at"
+    },
+    {
+      "table_name": "mfa_challenges",
+      "index_name": "mfa_challenges_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "factor_id_created_at_idx",
+      "column_name": "created_at"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "factor_id_created_at_idx",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "mfa_factors_last_challenged_at_key",
+      "column_name": "last_challenged_at"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "mfa_factors_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "mfa_factors_user_friendly_name_unique",
+      "column_name": "friendly_name"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "mfa_factors_user_friendly_name_unique",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "mfa_factors_user_id_idx",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "unique_phone_factor_per_user",
+      "column_name": "phone"
+    },
+    {
+      "table_name": "mfa_factors",
+      "index_name": "unique_phone_factor_per_user",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "migrations",
+      "index_name": "migrations_name_key",
+      "column_name": "name"
+    },
+    {
+      "table_name": "migrations",
+      "index_name": "migrations_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "migrations",
+      "index_name": "migrations_pkey",
+      "column_name": "version"
+    },
+    {
+      "table_name": "objects",
+      "index_name": "bucketid_objname",
+      "column_name": "name"
+    },
+    {
+      "table_name": "objects",
+      "index_name": "bucketid_objname",
+      "column_name": "bucket_id"
+    },
+    {
+      "table_name": "objects",
+      "index_name": "idx_objects_bucket_id_name",
+      "column_name": "bucket_id"
+    },
+    {
+      "table_name": "objects",
+      "index_name": "idx_objects_bucket_id_name",
+      "column_name": "name"
+    },
+    {
+      "table_name": "objects",
+      "index_name": "name_prefix_search",
+      "column_name": "name"
+    },
+    {
+      "table_name": "objects",
+      "index_name": "objects_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "one_time_tokens",
+      "index_name": "one_time_tokens_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "one_time_tokens",
+      "index_name": "one_time_tokens_relates_to_hash_idx",
+      "column_name": "relates_to"
+    },
+    {
+      "table_name": "one_time_tokens",
+      "index_name": "one_time_tokens_token_hash_hash_idx",
+      "column_name": "token_hash"
+    },
+    {
+      "table_name": "one_time_tokens",
+      "index_name": "one_time_tokens_user_id_token_type_key",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "one_time_tokens",
+      "index_name": "one_time_tokens_user_id_token_type_key",
+      "column_name": "token_type"
+    },
+    {
+      "table_name": "order_bumps",
+      "index_name": "order_bumps_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "order_item_addons",
+      "index_name": "order_item_addons_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "order_items",
+      "index_name": "order_items_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "orders",
+      "index_name": "orders_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "pedidos_agendados",
+      "index_name": "pedidos_agendados_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "index_name": "idx_product_addon_categories_addon_category_id",
+      "column_name": "addon_category_id"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "index_name": "idx_product_addon_categories_product_id",
+      "column_name": "product_id"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "index_name": "product_addon_categories_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "product_images",
+      "index_name": "idx_product_images_product_id",
+      "column_name": "product_id"
+    },
+    {
+      "table_name": "product_images",
+      "index_name": "product_images_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "products",
+      "index_name": "products_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "profiles_email_key",
+      "column_name": "email"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "profiles_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_instance_id_idx",
+      "column_name": "instance_id"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_instance_id_user_id_idx",
+      "column_name": "instance_id"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_instance_id_user_id_idx",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_parent_idx",
+      "column_name": "parent"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_session_id_revoked_idx",
+      "column_name": "session_id"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_session_id_revoked_idx",
+      "column_name": "revoked"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_token_unique",
+      "column_name": "token"
+    },
+    {
+      "table_name": "refresh_tokens",
+      "index_name": "refresh_tokens_updated_at_idx",
+      "column_name": "updated_at"
+    },
+    {
+      "table_name": "s3_multipart_uploads",
+      "index_name": "idx_multipart_uploads_list",
+      "column_name": "created_at"
+    },
+    {
+      "table_name": "s3_multipart_uploads",
+      "index_name": "idx_multipart_uploads_list",
+      "column_name": "bucket_id"
+    },
+    {
+      "table_name": "s3_multipart_uploads",
+      "index_name": "idx_multipart_uploads_list",
+      "column_name": "key"
+    },
+    {
+      "table_name": "s3_multipart_uploads",
+      "index_name": "s3_multipart_uploads_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "s3_multipart_uploads_parts",
+      "index_name": "s3_multipart_uploads_parts_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "saml_providers",
+      "index_name": "saml_providers_entity_id_key",
+      "column_name": "entity_id"
+    },
+    {
+      "table_name": "saml_providers",
+      "index_name": "saml_providers_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "saml_providers",
+      "index_name": "saml_providers_sso_provider_id_idx",
+      "column_name": "sso_provider_id"
+    },
+    {
+      "table_name": "saml_relay_states",
+      "index_name": "saml_relay_states_created_at_idx",
+      "column_name": "created_at"
+    },
+    {
+      "table_name": "saml_relay_states",
+      "index_name": "saml_relay_states_for_email_idx",
+      "column_name": "for_email"
+    },
+    {
+      "table_name": "saml_relay_states",
+      "index_name": "saml_relay_states_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "saml_relay_states",
+      "index_name": "saml_relay_states_sso_provider_id_idx",
+      "column_name": "sso_provider_id"
+    },
+    {
+      "table_name": "schema_migrations",
+      "index_name": "schema_migrations_idempotency_key_key",
+      "column_name": "idempotency_key"
+    },
+    {
+      "table_name": "schema_migrations",
+      "index_name": "schema_migrations_pkey",
+      "column_name": "version"
+    },
+    {
+      "table_name": "schema_migrations",
+      "index_name": "schema_migrations_pkey",
+      "column_name": "version"
+    },
+    {
+      "table_name": "schema_migrations",
+      "index_name": "schema_migrations_pkey",
+      "column_name": "version"
+    },
+    {
+      "table_name": "secrets",
+      "index_name": "secrets_name_idx",
+      "column_name": "name"
+    },
+    {
+      "table_name": "secrets",
+      "index_name": "secrets_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "sessions",
+      "index_name": "sessions_not_after_idx",
+      "column_name": "not_after"
+    },
+    {
+      "table_name": "sessions",
+      "index_name": "sessions_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "sessions",
+      "index_name": "sessions_user_id_idx",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "sessions",
+      "index_name": "user_id_created_at_idx",
+      "column_name": "created_at"
+    },
+    {
+      "table_name": "sessions",
+      "index_name": "user_id_created_at_idx",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "sso_domains",
+      "index_name": "sso_domains_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "sso_domains",
+      "index_name": "sso_domains_sso_provider_id_idx",
+      "column_name": "sso_provider_id"
+    },
+    {
+      "table_name": "sso_providers",
+      "index_name": "sso_providers_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "stock_movements",
+      "index_name": "idx_stock_movements_created_at",
+      "column_name": "created_at"
+    },
+    {
+      "table_name": "stock_movements",
+      "index_name": "idx_stock_movements_movement_type",
+      "column_name": "movement_type"
+    },
+    {
+      "table_name": "stock_movements",
+      "index_name": "idx_stock_movements_product_id",
+      "column_name": "product_id"
+    },
+    {
+      "table_name": "stock_movements",
+      "index_name": "stock_movements_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "stores",
+      "index_name": "idx_stores_created_at",
+      "column_name": "created_at"
+    },
+    {
+      "table_name": "stores",
+      "index_name": "idx_stores_is_active",
+      "column_name": "is_active"
+    },
+    {
+      "table_name": "stores",
+      "index_name": "idx_stores_owner_id",
+      "column_name": "owner_id"
+    },
+    {
+      "table_name": "stores",
+      "index_name": "stores_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "stores",
+      "index_name": "stores_slug_key",
+      "column_name": "slug"
+    },
+    {
+      "table_name": "subcategories",
+      "index_name": "idx_subcategories_category_id",
+      "column_name": "category_id"
+    },
+    {
+      "table_name": "subcategories",
+      "index_name": "subcategories_pkey",
+      "column_name": "id"
+    },
+    {
+      "table_name": "subscription",
+      "index_name": "ix_realtime_subscription_entity",
+      "column_name": "entity"
+    },
+    {
+      "table_name": "subscription",
+      "index_name": "pk_subscription",
+      "column_name": "id"
+    },
+    {
+      "table_name": "subscription",
+      "index_name": "subscription_subscription_id_entity_filters_key",
+      "column_name": "filters"
+    },
+    {
+      "table_name": "subscription",
+      "index_name": "subscription_subscription_id_entity_filters_key",
+      "column_name": "entity"
+    },
+    {
+      "table_name": "subscription",
+      "index_name": "subscription_subscription_id_entity_filters_key",
+      "column_name": "subscription_id"
+    },
+    {
+      "table_name": "users",
+      "index_name": "confirmation_token_idx",
+      "column_name": "confirmation_token"
+    },
+    {
+      "table_name": "users",
+      "index_name": "email_change_token_current_idx",
+      "column_name": "email_change_token_current"
+    },
+    {
+      "table_name": "users",
+      "index_name": "email_change_token_new_idx",
+      "column_name": "email_change_token_new"
+    },
+    {
+      "table_name": "users",
+      "index_name": "reauthentication_token_idx",
+      "column_name": "reauthentication_token"
+    },
+    {
+      "table_name": "users",
+      "index_name": "recovery_token_idx",
+      "column_name": "recovery_token"
+    },
+    {
+      "table_name": "users",
+      "index_name": "users_email_partial_key",
+      "column_name": "email"
+    },
+    {
+      "table_name": "users",
+      "index_name": "users_instance_id_email_idx",
+      "column_name": "instance_id"
+    },
+    {
+      "table_name": "users",
+      "index_name": "users_instance_id_idx",
+      "column_name": "instance_id"
+    },
+    {
+      "table_name": "users",
+      "index_name": "users_is_anonymous_idx",
+      "column_name": "is_anonymous"
+    },
+    {
+      "table_name": "users",
+      "index_name": "users_phone_key",
+      "column_name": "phone"
+    },
+    {
+      "table_name": "users",
+      "index_name": "users_pkey",
+      "column_name": "id"
+    }
+  ]
+
+
+  [
+    {
+      "table_name": "addon_categories",
+      "column_name": "store_id",
+      "foreign_table_name": "stores",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "addon_items",
+      "column_name": "addon_category_id",
+      "foreign_table_name": "addon_categories",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "parent_id",
+      "foreign_table_name": "categories",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "store_id",
+      "foreign_table_name": "stores",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "order_item_addons",
+      "column_name": "addon_item_id",
+      "foreign_table_name": "addon_items",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "order_item_addons",
+      "column_name": "order_item_id",
+      "foreign_table_name": "order_items",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "order_id",
+      "foreign_table_name": "orders",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "store_id",
+      "foreign_table_name": "stores",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "column_name": "addon_category_id",
+      "foreign_table_name": "addon_categories",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "product_images",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "products",
+      "column_name": "category_id",
+      "foreign_table_name": "categories",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "products",
+      "column_name": "store_id",
+      "foreign_table_name": "stores",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    }
+  ]
+
+
+  [
+    {
+      "table_name": "addon_categories",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "store_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "name",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "description",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "sort_order",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": "0",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "is_order_bump",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "order_bump_description",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "order_bump_image_url",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "is_required",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "is_multiple",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "min_select",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": "1",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "max_select",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": "1",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "fixed_price",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": "NULL::numeric",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_categories",
+      "column_name": "required_quantity",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": "0",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_items",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "addon_items",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_items",
+      "column_name": "addon_category_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "addon_items",
+      "column_name": "name",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "addon_items",
+      "column_name": "description",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_items",
+      "column_name": "price",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": "0",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "addon_items",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "store_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "name",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "description",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "image_url",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "sort_order",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": "0",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "categories",
+      "column_name": "parent_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "order_item_addons",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "uuid_generate_v4()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "order_item_addons",
+      "column_name": "order_item_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "order_item_addons",
+      "column_name": "addon_item_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "order_item_addons",
+      "column_name": "price",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "order_item_addons",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "timezone('utc'::text, now())",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "uuid_generate_v4()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "order_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "quantity",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "price",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "notes",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "timezone('utc'::text, now())",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "store_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "customer_name",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "customer_phone",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "customer_email",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "address",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "city",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "state",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "zip",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "subtotal",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "delivery_fee",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": "0",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "total",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "payment_method",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "status",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": "'pending'::text",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "scheduled_for",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "notes",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "delivery_type",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": "'delivery'::text",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "street",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "number",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "complement",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "neighborhood",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "reference_point",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "orders",
+      "column_name": "mercado_pago_payment_id",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "uuid_generate_v4()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "column_name": "addon_category_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "product_addon_categories",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "product_images",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "product_images",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "product_images",
+      "column_name": "image_url",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "product_images",
+      "column_name": "is_primary",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "product_images",
+      "column_name": "display_order",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": "0",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "product_images",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "timezone('utc'::text, now())",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "product_images",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "timezone('utc'::text, now())",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "products",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "products",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "store_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "products",
+      "column_name": "category_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "products",
+      "column_name": "name",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "products",
+      "column_name": "description",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "price",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "products",
+      "column_name": "sale_price",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "image_url",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "is_featured",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "has_addons",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "allow_same_day_scheduling",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "allergens",
+      "data_type": "ARRAY",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "ingredients",
+      "data_type": "ARRAY",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "is_available",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "nutritional_info",
+      "data_type": "jsonb",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "preparation_time",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "daily_stock",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "current_stock",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "stock_last_reset",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "max_included_quantity",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "excess_unit_price",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "products",
+      "column_name": "track_stock",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "movement_type",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "quantity_before",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "quantity_after",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "quantity_changed",
+      "data_type": "integer",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "reason",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "order_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stock_movements",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "character_maximum_length": null,
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "owner_id",
+      "data_type": "uuid",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "name",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "slug",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "description",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "logo_url",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "cover_url",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "whatsapp",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "email",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "address",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "city",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "state",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "zip",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "primary_color",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "secondary_color",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "accent_color",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "delivery_fee",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": "0",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "minimum_order",
+      "data_type": "numeric",
+      "character_maximum_length": null,
+      "column_default": "0",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "opening_time",
+      "data_type": "time without time zone",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "closing_time",
+      "data_type": "time without time zone",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "scheduling_deadline",
+      "data_type": "time without time zone",
+      "character_maximum_length": null,
+      "column_default": "'14:00:00'::time without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "allows_pickup",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "pickup_address",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "pickup_instructions",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "cover_image_url",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "order_limit_time",
+      "data_type": "time without time zone",
+      "character_maximum_length": null,
+      "column_default": "'14:00:00'::time without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "delivery_available",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "pickup_available",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "accept_cash",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "accept_pix",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "accept_credit_card",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "false",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "mercado_pago_access_token",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "mercado_pago_public_key",
+      "data_type": "text",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "allow_scheduling",
+      "data_type": "boolean",
+      "character_maximum_length": null,
+      "column_default": "true",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "same_day_cutoff_time",
+      "data_type": "time without time zone",
+      "character_maximum_length": null,
+      "column_default": "'14:00:00'::time without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "delivery_schedule",
+      "data_type": "jsonb",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "pickup_schedule",
+      "data_type": "jsonb",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "weekly_schedule",
+      "data_type": "jsonb",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "special_dates",
+      "data_type": "jsonb",
+      "character_maximum_length": null,
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "global_delivery_hours",
+      "data_type": "jsonb",
+      "character_maximum_length": null,
+      "column_default": "'{}'::jsonb",
+      "is_nullable": "YES"
+    }
+  ]
