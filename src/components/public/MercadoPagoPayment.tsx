@@ -175,7 +175,6 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   if (!errorMessage) {
   setErrorMessage(`Erro ao criar pagamento PIX: ${error.message}`);
   }
-  // Don't call onError immediately, let user see the error and retry
   } finally {
   setLoading(false);
   }
