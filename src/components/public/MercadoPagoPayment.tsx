@@ -140,39 +140,42 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
         body: JSON.stringify(paymentData)
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        if (data.qr_code && data.qr_code_base64) {
-          setPixData({
-            qrCode: data.qr_code,
-            qrCodeBase64: data.qr_code_base64,
-            paymentId: data.payment_id
-          });
-          
-          // Iniciar polling do status do pagamento
-          const interval = setInterval(() => {
-            pollPaymentStatus(data.payment_id);
-          }, 5000);
-          
-          setPollingInterval(interval);
-          
-          // Limpar o intervalo após 10 minutos
-          setTimeout(() => {
-            if (pollingInterval) {
-              clearInterval(pollingInterval);
-              setPollingInterval(null);
-            }
-          }, 10 * 60 * 1000);
-          
-          toast({
-            title: "PIX gerado com sucesso!",
-            description: "Escaneie o QR Code ou copie o código para pagar"
-          });
-        } else {
-          setErrorMessage('Dados do PIX não recebidos da API');
-          throw new Error('Dados do PIX não recebidos da API');
-        }
+      if (!response.ok) {
+        throw new Error('Erro ao criar pagamento PIX');
       }
+      
+      const data = await response.json();
+      
+      if (!data.qr_code || !data.qr_code_base64) {
+        setErrorMessage('Dados do PIX não recebidos da API');
+        throw new Error('Dados do PIX não recebidos da API');
+      }
+      
+      setPixData({
+        qrCode: data.qr_code,
+        qrCodeBase64: data.qr_code_base64,
+        paymentId: data.payment_id
+      });
+      
+      // Iniciar polling do status do pagamento
+      const interval = setInterval(() => {
+        pollPaymentStatus(data.payment_id);
+      }, 5000);
+      
+      setPollingInterval(interval);
+      
+      // Limpar o intervalo após 10 minutos
+      setTimeout(() => {
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          setPollingInterval(null);
+        }
+      }, 10 * 60 * 1000);
+      
+      toast({
+        title: "PIX gerado com sucesso!",
+        description: "Escaneie o QR Code ou copie o código para pagar"
+      });
     } catch (error: any) {
       if (!errorMessage) {
         setErrorMessage(`Erro ao criar pagamento PIX: ${error.message}`);
